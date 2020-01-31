@@ -1,0 +1,35 @@
+{{> partials/header.hbs }}
+
+<div style="margin-top: 30px;">
+    <div id="content">
+        <div class="row pad">
+            <h2 class="tag-title">IUSG Congress Statements
+                <span class="count">({{statementsSize}})</span></h2>
+
+            <div>
+                {{#each statements}}
+                    <div style="margin-bottom: 25px; margin-top: 25px;">
+                        <article class="profile" itemscope="itemscope" itemtype="http://schema.org/Person">
+                            <div class="content"><p class="no-margin size-1"><a href="/statements/{{id}}">{{title}}</a></p>
+                                <dl class="meta inline">
+                                    <dt>By:</dt>
+                                    <dd>{{& author.asLink}}</dd>
+
+                                    <dt>Published:</dt>
+                                    <dd>{{date}}</dd>
+
+                                </dl>
+                            </div>
+                        </article>
+                    </div>
+                {{/each}}
+            </div>
+
+            {{#if isPrivileged}}
+                <a href="/create-statement" class="button">New Statement</a>
+            {{/if}}
+        </div>
+    </div>
+</div>
+
+{{> partials/footer.hbs }}

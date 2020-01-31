@@ -1,0 +1,22 @@
+{{> partials/header.hbs }}
+
+<div style="margin-top: 30px;">
+    <div id="content">
+        <div class="row pad">
+            <h2 class="tag-title">Failed Legislation</h2>
+
+            <div>
+                <h3 class="tag-title">All Failed Legislation</h3>
+                {{#unless failedLegislation}}<p>There is no failed legislation.</p>{{/unless}}
+
+                {{#each failedLegislation}}
+                    <div>
+                        {{> partials/legislation.hbs this}}
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</div>
+
+{{> partials/footer.hbs }}

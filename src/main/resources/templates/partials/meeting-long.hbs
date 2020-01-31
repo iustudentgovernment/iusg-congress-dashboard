@@ -1,0 +1,42 @@
+<div>
+    <article style="margin-left: 25px;" class="profile" itemscope="itemscope"
+             itemtype="http://schema.org/Person">
+        <div class="content"><p class="no-margin size-1"><a href="/meetings/{{meetingId}}">{{name}}</a>
+        </p>
+            <dl class="meta inline">
+                <dt>Committee:</dt>
+                <dd><a href="/committees/{{committee.id}}">{{committee.formalName}}</a></dd>
+
+                <dt>Date:</dt>
+                <dd>{{date}}</dd>
+
+                <dt>Location:</dt>
+                <dd>{{location}}</dd>
+
+                <dt>Led By:</dt>
+                <dd>{{& ledByString}}</dd>
+
+                {{#if agendaFileUrl}}
+                    <dt>Agenda:</dt>
+                    <dd><a href="{{& agendaFileUrl}}">link</a></dd>
+                {{/if}}
+
+                {{#if notes}}
+                    <dt>Notes:</dt>
+                    <dd>
+                        <ul>
+                            {{#each notes}}
+                                <li style="font-size: 1rem;">{{this.text}}</li>{{/each}}
+                        </ul>
+                    </dd>
+                {{/if}}
+
+                {{#if minutesUrl}}
+                    <dt>Minutes:</dt>
+                    <dd><a href="{{& minutesUrl}}">link</a></dd>
+                {{/if}}
+
+            </dl>
+        </div>
+    </article>
+</div>

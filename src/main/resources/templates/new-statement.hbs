@@ -1,0 +1,25 @@
+{{> partials/header.hbs }}
+
+<div id="main-content">
+    <div class="row" style="margin-top: 30px;">
+        <h2>New Statement</h2>
+    </div>
+
+    <div class="collapsed bg-none">
+        <div class="row">
+            <article class="profile feed-item" itemscope="itemscope" itemtype="http://schema.org/Person">
+                <form action="/create-new-statement" method="get">
+                    <div class="content">
+                        Title: <input id="title" name="title" style="width: 30%" type="text">
+                        Text: <textarea id="text" name="text" rows="15" style="width: 65%"></textarea>
+                    </div>
+
+                    <input type="submit" class="button" value="Submit"/>
+                </form>
+            </article>
+        </div>
+    </div>
+
+</div>
+
+{{> partials/footer.hbs }}

@@ -1,0 +1,38 @@
+{{> partials/header.hbs }}
+
+{{#with statement}}
+    <div style="margin-top: 30px;">
+        <div id="content">
+            <div class="row pad">
+                <h2 class="tag-title">{{title}}</h2>
+                <div>
+                    <article class="profile" itemscope="itemscope" itemtype="http://schema.org/Person">
+                            <dl class="meta inline">
+                                <dt>By:</dt>
+                                <dd>{{& author.asLink}}</dd>
+
+                                {{#unless LastEditAuthor}}
+                                    <dt>Published:</dt>
+                                    <dd>{{date}}</dd>
+                                {{else}}
+                                    <dt>Last Edited At:</dt>
+                                    <dd>{{lastEditDate}}</dd>
+                                {{/unless}}
+
+                                {{#if lastEditAuthor}}
+                                    <dt>Last Edited By:</dt>
+                                    <dd>{{& lastEditAuthor.asLink}}</dd>
+                                {{/if}}
+                            </dl>
+
+                        {{#each paragraphs}}
+                            <p>{{& text}}</p>
+                        {{/each}}
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+{{/with}}
+
+{{> partials/footer.hbs }}

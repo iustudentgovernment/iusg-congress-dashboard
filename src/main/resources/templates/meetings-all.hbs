@@ -1,0 +1,35 @@
+{{> partials/header.hbs }}
+
+<div style="margin-top: 30px;">
+    <div id="content">
+        <div class="row pad">
+            <h2 class="tag-title">Meetings</h2>
+
+            <div>
+                <h3 class="tag-title">Upcoming Meetings</h3>
+
+                {{#unless upcoming-meetings}}
+                    <p>There are no planned upcoming meetings.</p>
+                {{/unless}}
+
+                {{#each upcoming-meetings}}
+                    {{> partials/meeting-long.hbs this}}
+                {{/each}}
+            </div>
+
+            <div>
+                <h3 class="tag-title">Past Meetings</h3>
+
+                {{#unless past-meetings}}
+                    <p>There are no past meetings.</p>
+                {{/unless}}
+
+                {{#each past-meetings}}
+                    {{> partials/meeting-long.hbs this}}
+                {{/each}}
+            </div>
+        </div>
+    </div>
+</div>
+
+{{> partials/footer.hbs }}

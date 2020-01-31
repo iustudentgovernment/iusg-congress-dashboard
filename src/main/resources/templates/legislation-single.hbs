@@ -1,0 +1,112 @@
+{{> partials/header.hbs }}
+
+{{#with bill}}
+    <div style="margin-top: 30px;">
+        <div id="content">
+            <div class="row pad">
+                <h2 class="tag-title">Legislation</h2>
+
+                <div style="margin-bottom: 50px;">
+                    <h3 class="tag-title">Bill Information</h3>
+
+                    {{> partials/legislation.hbs this }}
+                </div>
+
+                {{#if isPartOfCommittee}}
+                    {{#unless isAuthor}}
+                        <div style="margin-bottom: 50px;">
+                            <h3 class="tag-title" style="margin-bottom: 0px">Cosponsor</h3>
+
+                            {{#if isCosponsor}}
+                                <p style="margin-left: 10px;" class>You're a cosponsor for this legislation.</p>
+                            {{else}}
+                                <p style="margin-left: 10px;" class>Become a cosponsor for this legislation. <a
+                                        href="/legislation/cosponsor/{{id}}" class="button">Cosponsor</a></p>
+                            {{/if}}
+                        </div>
+                    {{/unless}}
+
+                    {{#if isPrivileged}}
+                        <div style="margin-bottom: 50px;">
+                            <h3 class="tag-title" style="margin-bottom: 0px"><a
+                                    href="/legislation/edit/{{id}}" class="button">Edit Bill</a></h3>
+                            <h3 class="tag-title" style="margin-bottom: 0px"><a
+                                    href="/legislation/withdraw/{{id}}" class="button">Withdraw Bill</a></h3>
+                        </div>
+                    {{/if}}
+
+                    <div style="margin-bottom: 50px;">
+                        <h3 class="tag-title">Current Stage: {{currentStage.legislationStage.readable}}</h3>
+
+                        {{#with currentStage}}
+                            {{#if legislationStage.voteable}}
+                                {{#unless vote}}
+                                    {{#if isPrivileged}}
+                                        <p class="tag-title" style="margin-bottom: 0px"><a
+                                                href="/legislation/vote/start/{{id}}" class="button">Start Vote</a></p>
+                                    {{/if}}
+                                {{else}}
+                                    {{#if hasVoted}}
+                                        <p>You've already voted {{myVote}} on this bill.</p>
+                                        <p>{{vote.numVotes}}/{{vote.quorum}} votes required for a valid vote are in.</p>
+                                    {{else}}
+                                        <p>It's time to vote!</p>
+                                        <form action="/legislation/vote/{{id}}" method="get">
+                                            <select style="width: 15%;" id="vote" name="vote">
+                                                <option value="yes" selected>Yes</option>
+                                                <option value="no">No</option>
+                                                <option value="abstain">Abstain</option>
+                                            </select>
+                                            <input type="submit" class="button" value="Submit"/>
+                                        </form>
+                                    {{/if}}
+
+                                    {{#if isPrivileged}}
+                                        {{#if vote.valid}}
+                                            <p class="tag-title" style="margin-bottom: 0px"><a
+                                                    href="/legislation/vote/end/{{id}}" class="button">End Vote</a></p>
+                                        {{else}}
+                                            <p>You can't end this vote yet.</p>
+                                            <p class="tag-title" style="margin-bottom: 0px"><a
+                                                    href="/legislation/advance/{{id}}" class="button">Advance Bill
+                                                to {{nextStage.readable}} (disregarding any vote)</a></p>
+                                            <p class="tag-title" style="margin-bottom: 0px"><a
+                                                    href="/legislation/fail/{{id}}" class="button">Fail Bill (disregarding any vote)</a></p>
+                                        {{/if}}
+                                    {{/if}}
+                                {{/unless}}
+                            {{else}}
+                                {{#if enacted}}
+                                    <p>This bill has been enacted!</p>
+                                {{else}}
+                                    {{#unless failed}}
+                                        {{#if isPrivileged}}
+                                            {{#unless isAtPresident}}
+                                                <p class="tag-title" style="margin-bottom: 0px"><a
+                                                        href="/legislation/advance/{{id}}" class="button">Advance Bill
+                                                    to {{nextStage.readable}}</a></p>
+                                                <p class="tag-title" style="margin-bottom: 0px"><a
+                                                        href="/legislation/fail/{{id}}" class="button">Fail Legislation</a></p>
+                                            {{else}}
+                                                <p class="tag-title" style="margin-bottom: 0px"><a
+                                                        href="/legislation/advance/{{id}}" class="button">Advance Bill
+                                                    to Enacted</a></p>
+                                                <p class="tag-title" style="margin-bottom: 0px"><a
+                                                        href="/legislation/fail/{{id}}" class="button">Veto Legislation</a></p>
+                                            {{/unless}}
+                                        {{/if}}
+                                    {{else}}
+                                        <p>This bill has failed.</p>
+                                    {{/unless}}
+                                {{/if}}
+                            {{/if}}
+                        {{/with}}
+
+                    </div>
+                {{/if}}
+            </div>
+        </div>
+    </div>
+{{/with}}
+
+{{> partials/footer.hbs }}

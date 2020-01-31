@@ -1,0 +1,34 @@
+{{> partials/header.hbs }}
+
+<div style="margin-top: 30px;">
+    <div id="content">
+        <div class="row pad">
+            <h2 class="tag-title">Legislation</h2>
+
+            <div>
+                <h3 class="tag-title">Enacted Legislation</h3>
+                {{#unless enactedLegislation}}<p>There is no enacted legislation.</p>{{/unless}}
+
+                {{#each enactedLegislation}}
+                    <div>
+                        {{> partials/legislation.hbs this}}
+                    </div>
+                {{/each}}
+            </div>
+
+            <div>
+                <h3 class="tag-title">All Active Legislation</h3>
+                {{#unless activeLegislation}}<p>There is no active legislation.</p>{{/unless}}
+
+                {{#each activeLegislation}}
+                    <div>
+                        {{> partials/legislation.hbs this}}
+                    </div>
+                {{/each}}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{{> partials/footer.hbs }}

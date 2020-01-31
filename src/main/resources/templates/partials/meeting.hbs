@@ -1,0 +1,25 @@
+<article style="margin-left: 25px;" class="profile" itemscope="itemscope" itemtype="http://schema.org/Person">
+    <div class="content"><p class="no-margin size-1"><a href="/meetings/{{meetingId}}">{{name}}</a></p>
+        <dl class="meta inline">
+            <dt>Date:</dt>
+            <dd>{{date}}</dd>
+
+            <dt>Location:</dt>
+            <dd>{{location}}</dd>
+
+            {{#if notes}}
+                <dt>Notes:</dt>
+                <dd>
+                    <ul>
+                        {{#each notes}}<li style="font-size: 1rem;">{{this.text}}</li>{{/each}}
+                    </ul>
+                </dd>
+            {{/if}}
+
+            {{#if minutesUrl}}
+                <dt>Minutes:</dt>
+                <dd><a href="{{& minutesUrl}}">link</a></dd>
+            {{/if}}
+        </dl>
+    </div>
+</article>

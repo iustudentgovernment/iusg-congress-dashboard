@@ -1,0 +1,98 @@
+<html>
+<head>
+    <title>{{title}} | IUSG Internal</title>
+
+    <link rel="stylesheet" href="https://assets.iu.edu/brand/3.2.x/brand.css">
+    <link rel="stylesheet" href="https://assets.iu.edu/search/3.2.x/search.css">
+    <link rel="stylesheet" href="https://assets.iu.edu/web/3.2.x/css/iu-framework.min.css">
+    <link rel="stylesheet" href="https://assets.iu.edu/web/fonts/icon-font.css" media="screen">
+    <link rel="stylesheet" href="/css/main.css">
+
+    <script src="https://assets.iu.edu/search/3.2.x/search.js"></script>
+    <script src="https://assets.uits.iu.edu/javascript/rivet/1.7.2/rivet.min.js"></script>
+    <script
+            src="https://code.jquery.com/jquery-3.4.1.min.js"
+            integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+            crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+<header id="header">
+    {{include-external "https://assets.iu.edu/brand/3.2.x/header-iub.html"}}
+
+    <div class="site-header">
+        <div class="row pad">
+            <h1><a class="title" href="/">IUSG Congress Internal Site</a></h1>
+        </div>
+    </div>
+</header>
+
+<div id="nav-main-sticky-wrapper" class="sticky-nav" style="height: 52px;">
+    <nav aria-label="Main" id="nav-main" role="navigation" itemscope="itemscope"
+         itemtype="http://schema.org/SiteNavigationElement" class="main show-for-large dropdown" style="width: 100%;">
+        <ul class="row pad">
+            <li class="show-on-sticky home"><a href="/" aria-label="Home">Home</a></li>
+            <li class="first"><a href="/statements" aria-label="News">Statements</a></li>
+
+            <li><a href="/forms" itemprop="url"><span itemprop="name">Forms and Surveys</span></a>
+                <ul class="children">
+                    <li><a href="/initiatives/complain"
+                           itemprop="url"><span itemprop="name">Submit Complaints or Comments about IU</span></a></li>
+                    <li><a href="/initiatives/micro-grant" itemprop="url"><span
+                            itemprop="name">Request a Micro-Grant</span></a></li>
+                    <li><a href="/initiatives/advertise"
+                           itemprop="url"><span itemprop="name">Advertise Your Group or Organization To Congress</span></a>
+                    </li>
+                </ul>
+            </li>
+
+            <li><a href="/committees" itemprop="url"><span itemprop="name">Committees</span></a>
+                <ul class="children">
+                    <li><a href="/committees/congress" itemprop="url"><span
+                            itemprop="name">Congress Committee</span></a></li>
+                    <li><a href="/committees/steering" itemprop="url"><span
+                            itemprop="name">Steering Committee</span></a></li>
+                    <li><a href="/committees/oversight"
+                           itemprop="url"><span itemprop="name">Oversight Committee</span></a></li>
+                    <li><a href="/committees/student"
+                           itemprop="url"><span itemprop="name">Student Relations</span></a></li>
+                    <li><a href="/committees/environment"
+                           itemprop="url"><span itemprop="name">Environmental Affairs</span></a></li>
+                    <li><a href="/committees/funding"
+                           itemprop="url"><span itemprop="name">Ad-Hoc Committee on Funding</span></a></li>
+
+                </ul>
+            </li>
+
+            <li><a href="/meetings" itemprop="url"><span itemprop="name">Meetings</span></a></li>
+
+            <li><a href="/legislation" itemprop="url"><span itemprop="name">Legislation</span></a>
+                <ul class="children">
+                    <li><a href="/legislation/submit" itemprop="url"><span
+                            itemprop="name">Submit Legislation To Committee</span></a></li>
+                    <li><a href="/legislation" itemprop="url"><span
+                            itemprop="name">View Active and Enacted Legislation</span></a></li>
+                    <li><a href="/legislation/failed" itemprop="url"><span
+                            itemprop="name">View Failed Legislation</span></a></li>
+                </ul>
+            </li>
+
+            <li class=""><a href="/representatives" itemprop="url"><span
+                    itemprop="name">Contact</span></a>
+                <ul class="children">
+                    <li><a href="/committees/steering/members" itemprop="url"><span
+                            itemprop="name">Steering Committee</span></a></li>
+                    <li><a href="/contact" itemprop="url"><span
+                            itemprop="name">Contact Representatives</span></a></li>
+                </ul>
+            </li>
+
+            {{#if loggedIn}}
+                <li class=""><a href="/me" aria-label="Me">Member Page</a></li>
+            {{else}}
+                <li class=""><a href="/login" aria-label="Me">Login</a></li>
+            {{/if}}
+        </ul>
+    </nav>
+</div>

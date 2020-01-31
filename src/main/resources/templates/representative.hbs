@@ -1,0 +1,17 @@
+{{> partials/header.hbs }}
+
+<div id="main-content">
+    <div class="row" style="margin-top: 30px;">
+        <h2>Member Info</h2>
+    </div>
+
+    <div class="collapsed bg-none">
+        <div class="row">
+            {{#with member}}
+                {{> partials/member-info.hbs this}}
+            {{/with}}
+        </div>
+    </div>
+</div>
+
+{{> partials/footer.hbs }}

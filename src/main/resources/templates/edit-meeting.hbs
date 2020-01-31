@@ -1,0 +1,36 @@
+{{> partials/header.hbs }}
+
+<div id="main-content">
+    <div class="row" style="margin-top: 30px;">
+        <h2>Edit Meeting</h2>
+    </div>
+
+    {{#with meeting}}
+        <div class="collapsed bg-none">
+            <div class="row">
+                <article class="profile feed-item" itemscope="itemscope" itemtype="http://schema.org/Person">
+                    <form action="/create-new-meeting/{{committee.id}}" method="get">
+                        <input type="hidden" name="meetingId" id="meetingId" value="{{meetingId}}">
+
+                        <div class="content">
+                            Meeting Name: <input id="name" name="name" style="width: 30%" type="text" value="{{name}}">
+                            Time: <input type="datetime-local" id="time" style="width: 25%;" name="time" value="{{jsTime}}">
+                            Location: <input id="location" name="location" style="width: 30%" type="text" value="{{location}}">
+                            Led By (separate with commas): <input id="ledBy" name="ledBy" style="width: 30%"
+                                                                  type="text" value="{{ledByNoLinkString}}">
+                            Agenda Box Url: <input id="agenda" name="agenda" style="width: 50%" type="url" value="{{agendaFileUrl}}">
+                            Minutes Box Url: <input id="minutesUrl" name="minutesUrl" style="width: 50%" type="url" value="{{& minutesUrl}}">
+                            Notes (one each line): <textarea id="notes" name="notes" rows="2"
+                                                             style="width: 65%">{{& notesString}}</textarea>
+                        </div>
+
+                        <input type="submit" class="button" value="Submit"/>
+                    </form>
+                </article>
+            </div>
+        </div>
+    {{/with}}
+
+</div>
+
+{{> partials/footer.hbs }}

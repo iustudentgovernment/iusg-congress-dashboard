@@ -1,0 +1,110 @@
+{{> partials/header.hbs}}
+
+{{#with committee}}
+    <div class="row" style="margin-top: 30px;">
+        <h2 class="display-inline">{{formalName}} Committee</h2>
+        {{#if loggedIn}}
+            {{#if partOfCommittee}}
+                <p style="margin-left: 10px;" class="display-inline">You're a part of this committee. <a
+                        href="/committees/{{id}}/leave" class="button">Leave</a></p>
+            {{else}}
+                <p style="margin-left: 10px;" class="display-inline">You're not a part of this committee. <a
+                        href="/committees/{{id}}/join" class="button">Join</a></p>
+            {{/if}}
+        {{/if}}
+
+    </div>
+
+    <div id="content" class="row">
+        <p>{{description}}</p>
+
+        <p><u>Committee Members</u>: {{& membersString}}</p>
+
+        <div style="margin-top: 45px;">
+            <p class="no-margin title"><b>Upcoming Meetings</b></p>
+            {{#if upcomingMeetings}}
+                {{#each upcomingMeetings}}
+                    {{> partials/meeting.hbs this}}
+                {{/each}}
+            {{else}}
+                <p>There are no upcoming meetings for this committee.</p>
+            {{/if}}
+        </div>
+
+        <div>
+            <p class="no-margin title"><b>Recent Meetings</b></p>
+            {{#if pastMeetings}}
+                {{#each pastMeetings}}
+                    {{> partials/meeting.hbs this}}
+                {{/each}}
+            {{else}}
+                <p>There are no past meetings for this committee.</p>
+            {{/if}}
+        </div>
+
+        {{#if isPrivileged}}
+            <div>
+                <p class="no-margin title"><b>New Meeting</b> <a href="/create-meeting/{{id}}" class="button invert">Create</a>
+                </p>
+
+                <p class="no-margin title"><b>Delete Meeting</b></p>
+                <form action="/delete-meeting" method="get">
+                    <select name="meeting" style="width: 45%">
+                        {{#each upcomingMeetings}}
+                            <option name="{{name}} ({{date}})" value="{{meetingId}}">{{name}} ({{date}})</option>
+                        {{/each}}
+                    </select>
+
+                    <input type="submit" class="button" value="Delete"/>
+                </form>
+
+                <p class="no-margin title"><b>Edit Meeting</b></p>
+                <form action="/edit-meeting-action" method="get">
+                    <select name="meetingId" style="width: 45%">
+                        {{#each upcomingMeetings}}
+                            <option name="{{name}} ({{date}})" value="{{meetingId}}">{{name}} ({{date}})</option>
+                        {{/each}}
+                    </select>
+
+                    <input type="submit" class="button" value="Edit"/>
+                </form>
+            </div>
+        {{/if}}
+
+        <div>
+            <p class="no-margin title"><b>Active Committee Legislation</b></p>
+            {{#unless activeLegislation}}<p class="size-1">There is no active legislation.</p>{{/unless}}
+
+            {{#each activeLegislation}}
+                <div>
+                    {{> partials/legislation.hbs this}}
+                </div>
+            {{/each}}
+        </div>
+
+        <div>
+            <p class="no-margin title"><b>Enacted Committee Legislation</b></p>
+            {{#unless enactedLegislation}}<p class="size-1">There is no enacted legislation.</p>{{/unless}}
+
+            {{#each enactedLegislation}}
+                <div>
+                    {{> partials/legislation.hbs this}}
+                </div>
+            {{/each}}
+        </div>
+
+        <div>
+            <p class="no-margin title"><b>Failed Committee Legislation</b></p>
+            {{#unless failedLegislation}}<p class="size-1">There is no failed legislation.</p>{{/unless}}
+
+            {{#each failedLegislation}}
+                <div>
+                    {{> partials/legislation.hbs this}}
+                </div>
+            {{/each}}
+        </div>
+    </div>
+
+{{/with}}
+
+{{> partials/footer.hbs }}

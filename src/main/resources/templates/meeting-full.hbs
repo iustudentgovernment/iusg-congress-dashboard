@@ -1,0 +1,12 @@
+{{> partials/header.hbs }}
+
+<div style="margin-top: 30px;">
+    <div id="content">
+        <div class="row pad">
+            <h2 class="tag-title">{{meeting.name}}</h2>
+            {{> partials/meeting-long.hbs meeting}}
+        </div>
+    </div>
+</div>
+
+{{> partials/footer.hbs }}

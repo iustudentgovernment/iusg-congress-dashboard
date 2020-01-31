@@ -1,0 +1,33 @@
+{{> partials/header.hbs }}
+
+<div id="main-content">
+    <div class="row" style="margin-top: 30px;">
+        <h2>Get IUSG Email Lists</h2>
+    </div>
+
+    <div id="select" class="row" style="margin-top: 30px;">
+        <a href="/contact" class="button invert">All Members</a>
+        {{#each committees}}
+            <a href="/contact?committee={{id}}" class="button invert">{{formalName}}</a>
+        {{/each}}
+    </div>
+
+    <div class="collapsed bg-none">
+        <div class="row">
+            <article>
+                <dl class="meta inline">
+                    <div>
+                        <dt>Email list members:</dt>
+                        <dd>{{emailListSize}}</dd>
+                    </div>
+                    <div>
+                        <dt>Email list:</dt>
+                        <dd>{{emailList}}</dd>
+                    </div>
+                </dl>
+            </article>
+        </div>
+    </div>
+</div>
+
+{{> partials/footer.hbs }}

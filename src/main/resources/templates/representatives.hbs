@@ -1,0 +1,23 @@
+{{> partials/header.hbs }}
+
+<div id="main-content">
+    <div class="row" style="margin-top: 30px;">
+        <h2>{{title}}</h2>
+    </div>
+
+    <div id="select" class="row" style="margin-top: 30px;">
+        <a href="/representatives" class="button invert">All Members</a>
+        {{#each committees}}
+            <a href="/committees/{{id}}/members" class="button invert">{{formalName}}</a>
+        {{/each}}
+    </div>
+    <div class="collapsed bg-none section">
+        <div class="row">
+            {{#each members}}
+                {{> partials/member-info.hbs this}}
+            {{/each}}
+        </div>
+    </div>
+</div>
+
+{{> partials/footer.hbs }}

@@ -1,0 +1,42 @@
+<article class="profile feed-item" itemscope="itemscope" itemtype="http://schema.org/Person">
+    <div class="content"><p class="no-margin title"><a href="/representatives/{{username}}"
+                                                       itemprop="url"><span
+            itemprop="name">{{name}}</span></a></p>
+        <p class="sub-title" itemprop="jobTitle">{{titles}}</p>
+        <dl class="meta inline">
+            {{#unless active}}
+                <dt>Is Current Member:</dt>
+                <dd>No</dd>
+            {{/unless}}
+
+            <dt>Email:</dt>
+            <dd itemprop="email"><a rel="nofollow" href="mailto:{{&email}}"
+                                    class="email">{{&email}}</a></dd>
+
+            <dt>Constituency:</dt>
+            <dd>{{constituency}}</dd>
+
+            {{#if loggedIn}}
+                <dt>Phone Number:</dt>
+                {{#if phoneNumber}}
+                    <dd itemprop="email"><a rel="nofollow" href="tel:1-{{phoneNumber}}"
+                                            class="email">{{phoneNumber}}</a></dd>
+                {{else}}
+                    <dd>None Provided</dd>
+                {{/if}}
+            {{/if}}
+            <dt>Committee Memberships:</dt>
+            <dd>
+                {{& readableCommitteeMemberships}}
+        </dl>
+        <p itemprop="description">
+            {{#if bio}}
+                {{bio}}
+            {{else}}
+                {{name}} has no current bio.
+            {{/if}}
+        </p></div>
+
+    {{#if editable}}{{#if isThisMember}}
+        <a href="/edit-profile/{{member.username}}">Edit this page</a>{{/if}}{{/if}}
+</article>

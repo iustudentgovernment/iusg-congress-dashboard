@@ -1,0 +1,32 @@
+{{> partials/header.hbs }}
+
+<div id="main-content">
+    <div class="row" style="margin-top: 30px;">
+        <h2>Submit Legislation</h2>
+    </div>
+
+    <div class="collapsed bg-none">
+        <div class="row">
+            <article class="profile feed-item" itemscope="itemscope" itemtype="http://schema.org/Person">
+                <form action="/create-new-legislation" method="get">
+                    <div class="content">
+                        Bill Name: <input id="name" name="name" style="width: 30%" type="text">
+                        Bill Box Url: <input type="text" id="billUrl" style="width: 25%;" name="billUrl">
+                        Committee:
+                        <br />
+                        <select name="committee" style="width: 25%">
+                            {{#each inCommittees}}
+                                <option name="{{formalName}}" value="{{id}}">{{formalName}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+
+                    <input type="submit" class="button" value="Submit"/>
+                </form>
+            </article>
+        </div>
+    </div>
+
+</div>
+
+{{> partials/footer.hbs }}

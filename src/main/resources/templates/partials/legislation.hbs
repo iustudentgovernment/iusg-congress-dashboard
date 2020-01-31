@@ -1,0 +1,22 @@
+<article style="margin-left: 25px;" class="profile" itemscope="itemscope" itemtype="http://schema.org/Person">
+    <div class="content"><p class="no-margin size-1"><a href="/legislation/view/{{id}}">{{name}}</a></p>
+        <dl class="meta inline">
+            <dt>Submitted by:</dt>
+            <dd>{{& author.asLink }}</dd>
+
+            {{#if cosponsors}}
+                <dt>Cosponsors:</dt>
+                <dd>{{& cosponsorsString }}</dd>
+            {{/if}}
+
+            <dt>Committee:</dt>
+            <dd><a href="/committees/{{committee.id}}">{{committee.formalName}}</a></dd>
+
+            <dt>Bill text:</dt>
+            <dd><a target="_blank" href="{{& legislationBoxUrl }}">link</a></dd>
+
+            <dt>Current stage:</dt>
+            <dd>{{currentStage.legislationStage.readable}}</dd>
+        </dl>
+    </div>
+</article>
