@@ -18,7 +18,7 @@ import spark.template.handlebars.HandlebarsTemplateEngine
 val connection = r.connection().port(28014).db("iusg").hostname("144.217.240.243").connect()
 val handlebars = HandlebarsTemplateEngine()
 val gson = Gson()
-val callbackUrl = "http://localhost/cas/callback"
+val callbackUrl = "https://iusg.herokuapp.com/cas/callback"
 val casUrl = "https://cas.iu.edu/cas/login?cassvc=IU&casurl=$callbackUrl"
 
 val database = Database()
