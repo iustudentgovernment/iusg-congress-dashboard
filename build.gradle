@@ -31,6 +31,9 @@ dependencies {
     compile group: 'com.rethinkdb', name: 'rethinkdb-driver', version: '2.3.3'
 }
 
+task stage(dependsOn: ['build', 'clean'])
+build.mustRunAfter clean
+
 jar {
     manifest {
         attributes "Main-Class": "edu.iu.iustudentgovernment.congress.CongressInternalSiteKt"

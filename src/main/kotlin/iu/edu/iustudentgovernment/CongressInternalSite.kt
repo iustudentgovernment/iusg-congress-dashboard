@@ -24,7 +24,7 @@ val casUrl = "https://cas.iu.edu/cas/login?cassvc=IU&casurl=$callbackUrl"
 val database = Database()
 
 fun main() {
-    port(80)
+    port(getHerokuAssignedPort())
     staticFileLocation("/static")
 
     registerHelpers()
@@ -97,3 +97,11 @@ internal fun Request.getMap(
 }
 
 class CongressInternalSite
+
+
+fun getHerokuAssignedPort(): Int {
+    val processBuilder = ProcessBuilder()
+    return if (processBuilder.environment()["PORT"] != null) {
+        Integer.parseInt(processBuilder.environment()["PORT"])
+    } else 80 // return default port if heroku-port isn't set (i.e. on localhost)
+}
