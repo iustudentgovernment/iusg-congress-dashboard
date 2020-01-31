@@ -15,7 +15,7 @@ import spark.Response
 import spark.Spark.*
 import spark.template.handlebars.HandlebarsTemplateEngine
 
-val connection = r.connection().port(28014).user("admin", "iusg").db("iusg").hostname("iusg-rethinkdb.herokuapp.com").connect()
+val connection = r.connection().user("admin", "iusg").db("iusg").hostname("dockhero-adjacent-48582.dockhero.io").connect()
 val handlebars = HandlebarsTemplateEngine()
 val gson = Gson()
 val callbackUrl = "https://iusg.herokuapp.com/cas/callback"

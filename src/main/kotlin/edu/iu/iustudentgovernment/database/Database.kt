@@ -40,7 +40,6 @@ private val tables = listOf(
 class Database {
     init {
         if (r.dbList().run<List<String>>(connection).contains("iusg")) r.dbDrop("iusg").run<Any>(connection)
-
         if (!r.dbList().run<List<String>>(connection).contains("iusg")) {
             r.dbCreate("iusg").run<Any>(connection)
             tables.forEach { (table, key) ->
