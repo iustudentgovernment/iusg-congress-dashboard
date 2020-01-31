@@ -1,6 +1,6 @@
-package iu.edu.iustudentgovernment.authentication
+package edu.iu.iustudentgovernment.authentication
 
-import iu.edu.iustudentgovernment.database
+import edu.iu.iustudentgovernment.database
 import spark.Request
 
 enum class Role(val readable: String){

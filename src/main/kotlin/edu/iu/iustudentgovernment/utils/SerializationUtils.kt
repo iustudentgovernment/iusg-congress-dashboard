@@ -1,10 +1,10 @@
-package iu.edu.iustudentgovernment.utils
+package edu.iu.iustudentgovernment.utils
 
 import com.google.gson.Gson
 import com.rethinkdb.RethinkDB.r
 import com.rethinkdb.net.Cursor
-import iu.edu.iustudentgovernment.connection
-import iu.edu.iustudentgovernment.gson
+import edu.iu.iustudentgovernment.connection
+import edu.iu.iustudentgovernment.gson
 import org.json.simple.JSONObject
 
 

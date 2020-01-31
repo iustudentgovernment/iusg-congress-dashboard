@@ -1,8 +1,8 @@
-package iu.edu.iustudentgovernment.models
+package edu.iu.iustudentgovernment.models
 
-import iu.edu.iustudentgovernment.authentication.Member
-import iu.edu.iustudentgovernment.authentication.Role
-import iu.edu.iustudentgovernment.database
+import edu.iu.iustudentgovernment.authentication.Member
+import edu.iu.iustudentgovernment.authentication.Role
+import edu.iu.iustudentgovernment.database
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDateTime

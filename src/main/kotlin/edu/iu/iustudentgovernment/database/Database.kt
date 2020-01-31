@@ -1,15 +1,15 @@
-package iu.edu.iustudentgovernment.database
+package edu.iu.iustudentgovernment.database
 
 import com.rethinkdb.RethinkDB.r
-import iu.edu.iustudentgovernment.authentication.Member
-import iu.edu.iustudentgovernment.authentication.Role
-import iu.edu.iustudentgovernment.authentication.Title
-import iu.edu.iustudentgovernment.connection
-import iu.edu.iustudentgovernment.database
-import iu.edu.iustudentgovernment.gson
-import iu.edu.iustudentgovernment.models.*
-import iu.edu.iustudentgovernment.utils.asPojo
-import iu.edu.iustudentgovernment.utils.queryAsArrayList
+import edu.iu.iustudentgovernment.authentication.Member
+import edu.iu.iustudentgovernment.authentication.Role
+import edu.iu.iustudentgovernment.authentication.Title
+import edu.iu.iustudentgovernment.connection
+import edu.iu.iustudentgovernment.database
+import edu.iu.iustudentgovernment.gson
+import edu.iu.iustudentgovernment.models.*
+import edu.iu.iustudentgovernment.utils.asPojo
+import edu.iu.iustudentgovernment.utils.queryAsArrayList
 
 private val membersTable = "users"
 private val committeesTable = "committees"

@@ -1,14 +1,14 @@
-package iu.edu.iustudentgovernment
+package edu.iu.iustudentgovernment
 
 import com.github.jknack.handlebars.Handlebars
 import com.github.jknack.handlebars.Options
 import com.google.gson.Gson
 import com.rethinkdb.RethinkDB.r
-import iu.edu.iustudentgovernment.authentication.Member
-import iu.edu.iustudentgovernment.authentication.cas
-import iu.edu.iustudentgovernment.database.Database
-import iu.edu.iustudentgovernment.endpoints.*
-import iu.edu.iustudentgovernment.utils.render
+import edu.iu.iustudentgovernment.authentication.Member
+import edu.iu.iustudentgovernment.authentication.cas
+import edu.iu.iustudentgovernment.database.Database
+import edu.iu.iustudentgovernment.endpoints.*
+import edu.iu.iustudentgovernment.utils.render
 import org.jsoup.Jsoup
 import spark.Request
 import spark.Response

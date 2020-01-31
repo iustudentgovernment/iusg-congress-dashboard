@@ -1,4 +1,4 @@
-package iu.edu.iustudentgovernment.utils
+package edu.iu.iustudentgovernment.utils
 
 import com.google.api.client.auth.oauth2.Credential
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp
@@ -14,7 +14,7 @@ import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.gmail.Gmail
 import com.google.api.services.gmail.GmailScopes
 import com.google.api.services.gmail.model.Message
-import iu.edu.iustudentgovernment.CongressInternalSite
+import edu.iu.iustudentgovernment.CongressInternalSite
 import java.io.*
 import java.util.*
 import javax.activation.DataHandler

@@ -1,4 +1,4 @@
-package iu.edu.iustudentgovernment.models
+package edu.iu.iustudentgovernment.models
 
 data class MeetingMinutes(val meetingId: String, val committeeId: String, val fileId: String, val boxUrl: String)
 

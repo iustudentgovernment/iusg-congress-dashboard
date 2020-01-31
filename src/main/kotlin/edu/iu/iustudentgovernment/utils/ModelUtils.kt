@@ -1,4 +1,4 @@
-package iu.edu.iustudentgovernment.utils
+package edu.iu.iustudentgovernment.utils
 
 import spark.ModelAndView
 import spark.template.handlebars.HandlebarsTemplateEngine

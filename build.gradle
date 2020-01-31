@@ -1,17 +1,17 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.3.70-eap-42'
+    id 'org.jetbrains.kotlin.jvm' version '1.3.60'
 }
 
 group 'edu.iu'
 version '1.0-SNAPSHOT'
 
 repositories {
-    maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
     mavenCentral()
+    jcenter()
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     // spark
     compile 'com.sparkjava:spark-core:2.8.0'
@@ -36,7 +36,7 @@ build.mustRunAfter clean
 
 jar {
     manifest {
-        attributes "Main-Class": "edu.iu.iustudentgovernment.congress.CongressInternalSiteKt"
+        attributes "Main-Class": "edu.iu.iustudentgovernment.CongressInternalSiteKt"
     }
 
     from {

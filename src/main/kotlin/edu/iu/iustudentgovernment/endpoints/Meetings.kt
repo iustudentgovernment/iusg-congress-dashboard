@@ -1,12 +1,12 @@
-package iu.edu.iustudentgovernment.endpoints
+package edu.iu.iustudentgovernment.endpoints
 
-import iu.edu.iustudentgovernment.authentication.getUser
-import iu.edu.iustudentgovernment.database
-import iu.edu.iustudentgovernment.getMap
-import iu.edu.iustudentgovernment.handlebars
-import iu.edu.iustudentgovernment.models.Meeting
-import iu.edu.iustudentgovernment.models.Note
-import iu.edu.iustudentgovernment.utils.render
+import edu.iu.iustudentgovernment.authentication.getUser
+import edu.iu.iustudentgovernment.database
+import edu.iu.iustudentgovernment.getMap
+import edu.iu.iustudentgovernment.handlebars
+import edu.iu.iustudentgovernment.models.Meeting
+import edu.iu.iustudentgovernment.models.Note
+import edu.iu.iustudentgovernment.utils.render
 import spark.Spark.get
 import spark.Spark.path
 import java.text.SimpleDateFormat

@@ -1,8 +1,8 @@
-package iu.edu.iustudentgovernment.authentication
+package edu.iu.iustudentgovernment.authentication
 
-import iu.edu.iustudentgovernment.callbackUrl
-import iu.edu.iustudentgovernment.casUrl
-import iu.edu.iustudentgovernment.database
+import edu.iu.iustudentgovernment.callbackUrl
+import edu.iu.iustudentgovernment.casUrl
+import edu.iu.iustudentgovernment.database
 import org.jsoup.Jsoup
 import spark.Spark
 import spark.Spark.get

@@ -1,6 +1,6 @@
-package iu.edu.iustudentgovernment.models
+package edu.iu.iustudentgovernment.models
 
-import iu.edu.iustudentgovernment.database
+import edu.iu.iustudentgovernment.database
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
