@@ -59,8 +59,6 @@ fun main() {
         awards()
 
         println("Endpoints registered")
-
-        database.insertInitial()
 }
 
 fun createModelMap(
