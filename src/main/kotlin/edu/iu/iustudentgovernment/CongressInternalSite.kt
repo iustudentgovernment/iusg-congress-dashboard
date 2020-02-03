@@ -60,7 +60,7 @@ fun main() {
 
     println("Endpoints registered")
 
-    database.insertInitial()
+   // database.insertInitial()
 }
 
 fun createModelMap(
