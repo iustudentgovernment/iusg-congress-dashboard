@@ -18,7 +18,7 @@ val urlBase = "http://iusg.herokuapp.com"
 val fromEmail = "aratzman@iu.edu"
 val emailTest = true
 
-val connection = r.connection().db("iusg").hostname("localhost").connect()
+val connection = r.connection().db("iusg").user("admin", "iusg").hostname("dockhero-adjacent-48582.dockhero.io").connect()
 val handlebars = HandlebarsTemplateEngine()
 val gson = Gson()
 val callbackUrl = "http://localhost/cas/callback"
