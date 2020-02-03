@@ -30,7 +30,7 @@ import javax.mail.internet.MimeBodyPart
 import javax.mail.internet.MimeMessage
 import javax.mail.internet.MimeMultipart
 
-
+/*
 private const val APPLICATION_NAME = "Gmail API Java Quickstart"
 private val JSON_FACTORY: JsonFactory = JacksonFactory.getDefaultInstance()
 private const val TOKENS_DIRECTORY_PATH = "tokens"
@@ -57,7 +57,7 @@ private fun getCredentials(HTTP_TRANSPORT: NetHttpTransport): Credential? {
 
     val receiver = LocalServerReceiver.Builder().setPort(8888).build()
     return AuthorizationCodeInstalledApp(flow, receiver).authorize("user")
-}
+}*/
 
 fun createEmail(
     toList: List<String>,
@@ -121,9 +121,9 @@ fun sendMessage(
     emailContent: MimeMessage?
 ): Message? {
     if (!emailTest) {
-        var message = createMessageWithEmail(emailContent!!)
-        message = service.users().messages().send(userId, message).execute()
-        return message
+        //var message = createMessageWithEmail(emailContent!!)
+        //message = service.users().messages().send(userId, message).execute()
+        //return message
     }
     return null
 }
