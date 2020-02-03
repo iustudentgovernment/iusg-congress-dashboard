@@ -29,38 +29,38 @@ val database = Database()
 val savedPages = mutableMapOf<String, String>()
 
 fun main() {
-    println("Starting up")
+        println("Starting up")
 
-    port(getHerokuAssignedPort())
-    staticFileLocation("/static")
+        port(getHerokuAssignedPort())
+        staticFileLocation("/static")
 
-    registerHelpers()
+        registerHelpers()
 
-    notFound { request, _ ->
-        val map = request.getMap("404 - Not Found", "404")
-        handlebars.render(map, "404.hbs")
-    }
+        notFound { request, _ ->
+            val map = request.getMap("404 - Not Found", "404")
+            handlebars.render(map, "404.hbs")
+        }
 
-    exception(Exception::class.java) { exception, _, _ ->
-        exception.printStackTrace()
-    }
+        exception(Exception::class.java) { exception, _, _ ->
+            exception.printStackTrace()
+        }
 
-    println("Web server started")
+        println("Web server started")
 
-    home()
-    contact()
-    member()
-    committees()
-    cas()
-    statements()
-    meetings()
-    legislation()
-    administration()
-    awards()
+        home()
+        contact()
+        member()
+        committees()
+        cas()
+        statements()
+        meetings()
+        legislation()
+        administration()
+        awards()
 
-    println("Endpoints registered")
+        println("Endpoints registered")
 
-   database.insertInitial()
+        database.insertInitial()
 }
 
 fun createModelMap(

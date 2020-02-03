@@ -13,7 +13,8 @@ fun home() {
         val upcomingCongressMeeting = database.getCommittee("congress")!!.upcomingMeetings.firstOrNull()
         if (upcomingCongressMeeting == null) map["upcoming-meeting"] = "TBA"
         else {
-            map["upcoming-meeting"] = "<a href='/meetings/${upcomingCongressMeeting.meetingId}'>${upcomingCongressMeeting.date} in ${upcomingCongressMeeting.location}</a>"
+            map["upcoming-meeting"] =
+                "<a href='/meetings/${upcomingCongressMeeting.meetingId}'>${upcomingCongressMeeting.date} in ${upcomingCongressMeeting.location}</a>"
         }
 
         map["speaker-message"] = database.getSpeakerMessage()
