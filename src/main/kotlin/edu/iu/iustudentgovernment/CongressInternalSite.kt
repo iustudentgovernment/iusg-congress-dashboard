@@ -96,19 +96,24 @@ internal fun Request.getMap(
     pageTitle: String,
     pageId: String = pageTitle.replace(" ", "_").toLowerCase()
 ): MutableMap<String, Any?> {
-    val map = mutableMapOf<String, Any?>()
-    map["title"] = pageTitle
-    map["page"] = pageId
-    val user = session().attribute<String?>("user")?.let { database.getMember(it) }
-    map["user"] = user
-    map["loggedIn"] = map["user"] != null
-    map["committees"] = database.getCommittees()
-    map["steering"] = user?.steering
+    try {
+        val map = mutableMapOf<String, Any?>()
+        map["title"] = pageTitle
+        map["page"] = pageId
+        val user = session().attribute<String?>("user")?.let { database.getMember(it) }
+        map["user"] = user
+        map["loggedIn"] = map["user"] != null
+        map["committees"] = database.getCommittees()
+        map["steering"] = user?.steering
 
-    // meta
-    map["description"] = "IUSG Congressional Site"
+        // meta
+        map["description"] = "IUSG Congressional Site"
 
-    return map
+        return map
+    } catch (e: Exception) {
+        e.printStackTrace()
+        throw e
+    }
 }
 
 class Congress
