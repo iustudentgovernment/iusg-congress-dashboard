@@ -21,7 +21,7 @@ val emailTest = true
 val connection = r.connection().db("iusg").user("admin", "iusg").hostname("dockhero-adjacent-48582.dockhero.io").connect()
 val handlebars = HandlebarsTemplateEngine()
 val gson = Gson()
-val callbackUrl = "http://localhost/cas/callback"
+val callbackUrl = "$urlBase/cas/callback"
 val casUrl = "https://cas.iu.edu/cas/login?cassvc=IU&casurl=$callbackUrl"
 
 val database = Database()
@@ -43,8 +43,6 @@ fun main() {
         exception.printStackTrace()
     }
 
-    database.insertInitial()
-
     home()
     contact()
     member()
@@ -55,6 +53,8 @@ fun main() {
     legislation()
     administration()
     awards()
+
+    database.insertInitial()
 }
 
 fun createModelMap(
@@ -105,7 +105,7 @@ internal fun Request.getMap(
     return map
 }
 
-class CongressInternalSite
+class Congress
 
 
 fun getHerokuAssignedPort(): Int {

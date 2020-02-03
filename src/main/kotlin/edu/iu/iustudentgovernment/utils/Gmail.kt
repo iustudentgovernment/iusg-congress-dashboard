@@ -14,7 +14,7 @@ import com.google.api.client.util.store.FileDataStoreFactory
 import com.google.api.services.gmail.Gmail
 import com.google.api.services.gmail.GmailScopes
 import com.google.api.services.gmail.model.Message
-import edu.iu.iustudentgovernment.CongressInternalSite
+import edu.iu.iustudentgovernment.Congress
 import edu.iu.iustudentgovernment.emailTest
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -45,7 +45,7 @@ var service = Gmail.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TR
 const val userId = "me"
 
 private fun getCredentials(HTTP_TRANSPORT: NetHttpTransport): Credential? {
-    val inputStream = CongressInternalSite::class.java.getResourceAsStream(CREDENTIALS_FILE_PATH)
+    val inputStream = Congress::class.java.getResourceAsStream(CREDENTIALS_FILE_PATH)
         ?: throw FileNotFoundException("Resource not found: $CREDENTIALS_FILE_PATH")
     val clientSecrets = GoogleClientSecrets.load(JSON_FACTORY, InputStreamReader(inputStream))
 
