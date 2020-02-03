@@ -68,8 +68,6 @@ class Database {
     init {
         println("Starting db setup")
 
-        println("Inserting db")
-        if (r.dbList().run<List<String>>(connection).contains("iusg")) r.dbDrop("iusg").run<Any>(connection)
         println("Inserted db. Inserting tables")
         if (!r.dbList().run<List<String>>(connection).contains("iusg")) {
             r.dbCreate("iusg").run<Any>(connection)
