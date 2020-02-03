@@ -43,6 +43,8 @@ fun main() {
         exception.printStackTrace()
     }
 
+    database.insertInitial()
+
     home()
     contact()
     member()
