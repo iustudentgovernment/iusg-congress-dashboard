@@ -5,7 +5,6 @@
         <div id="content">
             <div class="row pad">
                 <h2 class="tag-title">Legislation</h2>
-
                 <div style="margin-bottom: 50px;">
                     <h3 class="tag-title">Bill Information</h3>
 
@@ -71,7 +70,8 @@
                                                     href="/legislation/advance/{{id}}" class="button">Advance Bill
                                                 to {{nextStage.readable}} (disregarding any vote)</a></p>
                                             <p class="tag-title" style="margin-bottom: 0px"><a
-                                                    href="/legislation/fail/{{id}}" class="button">Fail Bill (disregarding any vote)</a></p>
+                                                    href="/legislation/fail/{{id}}" class="button">Fail Bill
+                                                (disregarding any vote)</a></p>
                                         {{/if}}
                                     {{/if}}
                                 {{/unless}}
@@ -86,13 +86,15 @@
                                                         href="/legislation/advance/{{id}}" class="button">Advance Bill
                                                     to {{nextStage.readable}}</a></p>
                                                 <p class="tag-title" style="margin-bottom: 0px"><a
-                                                        href="/legislation/fail/{{id}}" class="button">Fail Legislation</a></p>
+                                                        href="/legislation/fail/{{id}}" class="button">Fail
+                                                    Legislation</a></p>
                                             {{else}}
                                                 <p class="tag-title" style="margin-bottom: 0px"><a
                                                         href="/legislation/advance/{{id}}" class="button">Advance Bill
                                                     to Enacted</a></p>
                                                 <p class="tag-title" style="margin-bottom: 0px"><a
-                                                        href="/legislation/fail/{{id}}" class="button">Veto Legislation</a></p>
+                                                        href="/legislation/fail/{{id}}" class="button">Veto
+                                                    Legislation</a></p>
                                             {{/unless}}
                                         {{/if}}
                                     {{else}}
@@ -103,6 +105,35 @@
                         {{/with}}
 
                     </div>
+
+                    {{#if legislationHistory}}
+                        <div style="margin-bottom: 50px;">
+                            <h3 class="tag-title">Legislation History</h3>
+
+                            {{#each legislationHistory}}
+                                <article style="margin-left: 25px;" class="profile" itemscope="itemscope"
+                                         itemtype="http://schema.org/Person">
+                                    <div class="content">
+                                        <dl class="meta inline">
+                                            <dt>Stage:</dt>
+                                            <dd>{{legislationStage.readable}} ({{& historyCommitteeString}})</dd>
+
+                                            {{#if vote}}
+                                                <dt>Outcome:</dt>
+                                                <dd>This legislation {{#if vote.passed}}
+                                                    passed{{else}}failed{{/if}} with {{& vote.resultString }}.</dd>
+                                            {{else}}
+                                                <dt>Outcome:</dt>
+                                                <dd>This legislation was manually advanced
+                                                    by {{& whoAdvancedString }}.</dd>
+                                            {{/if}}
+                                        </dl>
+                                    </div>
+                                </article>
+                            {{/each}}
+
+                        </div>
+                    {{/if}}
                 {{/if}}
             </div>
         </div>

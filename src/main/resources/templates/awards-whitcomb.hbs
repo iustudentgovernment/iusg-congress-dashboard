@@ -1,0 +1,25 @@
+{{> partials/header.hbs}}
+
+<div class="row" style="margin-top: 30px;">
+    <h2>Whitcomb Award</h2>
+    <p>{{award.description}}</p>
+</div>
+
+<div id="content" class="row" style="margin-top: 30px;">
+    {{#each winners}}
+        <article style="margin-left: 25px;" class="profile" itemscope="itemscope" itemtype="http://schema.org/Person">
+            <div class="content">
+                <dl class="meta inline">
+                    <dt>Member:</dt>
+                    <dd>{{& winner.asLink }}</dd>
+
+                    <dt>When:</dt>
+                    <dd>{{date}}</dd>
+                </dl>
+            </div>
+        </article>
+    {{/each}}
+</div>
+
+
+{{> partials/footer.hbs }}

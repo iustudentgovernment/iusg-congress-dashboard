@@ -1,0 +1,28 @@
+{{> partials/header.hbs }}
+
+    <div id="main-content">
+        <div class="row" style="margin-top: 30px;">
+            <h2>Edit Messages</h2>
+        </div>
+
+        <div class="collapsed bg-none">
+            <div class="row">
+                <article class="profile feed-item" itemscope="itemscope" itemtype="http://schema.org/Person">
+                    <form action="/submit-edit-messages" method="get">
+                        <div class="content">
+                            Speaker's Message: <textarea id="speaker_message" name="speaker_message" rows="5" style="width: 65%">{{& speaker-message}}</textarea>
+                            Whitcomb Award Description: <textarea id="speaker_message" name="whitcomb_description" rows="5" style="width: 65%">{{& whitcomb-award-description}}</textarea>
+
+                            {{#each committees}}
+                                {{formalName}} Description:  <textarea id="committee_description_{{id}}" name="committee_description_{{id}}" rows="5" style="width: 65%">{{& description}}</textarea>
+                            {{/each}}
+                        </div>
+
+                        <input type="submit" class="button" value="Submit"/>
+                    </form>
+                </article>
+            </div>
+        </div>
+    </div>
+
+{{> partials/footer.hbs }}

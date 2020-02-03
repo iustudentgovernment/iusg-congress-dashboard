@@ -16,6 +16,8 @@ fun home() {
             map["upcoming-meeting"] = "<a href='/meetings/${upcomingCongressMeeting.meetingId}'>${upcomingCongressMeeting.date} in ${upcomingCongressMeeting.location}</a>"
         }
 
+        map["speaker-message"] = database.getSpeakerMessage()
+
         handlebars.render(map, "index.hbs")
     }
 }

@@ -1,0 +1,15 @@
+{{> partials/header.hbs}}
+
+<div class="row" style="margin-top: 30px;">
+    <h2>Awards</h2>
+</div>
+
+<div id="content" class="row" style="margin-top: 30px;">
+    {{#each awards}}
+        <p class="no-margin title"><a href="/awards/{{id}}" itemprop="url"><span itemprop="name"><u>{{name}}</u></span></a></p>
+        <p>{{description}}</p>
+    {{/each}}
+</div>
+
+
+{{> partials/footer.hbs }}

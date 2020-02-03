@@ -11,17 +11,22 @@
                                 <dt>By:</dt>
                                 <dd>{{& author.asLink}}</dd>
 
-                                {{#unless LastEditAuthor}}
+                                {{#unless lastEditAuthor}}
                                     <dt>Published:</dt>
                                     <dd>{{date}}</dd>
                                 {{else}}
-                                    <dt>Last Edited At:</dt>
+                                    <dt>Last Edited:</dt>
                                     <dd>{{lastEditDate}}</dd>
                                 {{/unless}}
 
                                 {{#if lastEditAuthor}}
                                     <dt>Last Edited By:</dt>
                                     <dd>{{& lastEditAuthor.asLink}}</dd>
+                                {{/if}}
+
+                                {{#if steering}}
+                                    <a href="/edit-statement/{{id}}" class="button">Edit Statement</a>
+                                    <a href="/delete-statement/{{id}}" class="button">Delete Statement</a>
                                 {{/if}}
                             </dl>
 

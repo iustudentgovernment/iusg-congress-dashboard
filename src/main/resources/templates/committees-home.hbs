@@ -7,7 +7,7 @@
 <div id="content" class="row" style="margin-top: 30px;">
     {{#each committees}}
         <p class="no-margin title"><a href="/committees/{{id}}" itemprop="url"><span itemprop="name"><u>{{formalName}} Committee</u></span></a></p>
-        <p>Chaired by <a href="/representatives/{{chair.username}}"><i>{{chair.name}}</i></a></p>
+        <p>Chaired by <a href="/representatives/{{chair.username}}">{{chair.name}}</a></p>
         <p>{{description}}</p>
     {{/each}}
 </div>

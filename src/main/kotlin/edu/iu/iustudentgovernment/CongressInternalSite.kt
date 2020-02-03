@@ -4,7 +4,6 @@ import com.github.jknack.handlebars.Handlebars
 import com.github.jknack.handlebars.Options
 import com.google.gson.Gson
 import com.rethinkdb.RethinkDB.r
-import edu.iu.iustudentgovernment.authentication.Member
 import edu.iu.iustudentgovernment.authentication.cas
 import edu.iu.iustudentgovernment.database.Database
 import edu.iu.iustudentgovernment.endpoints.*
@@ -15,13 +14,19 @@ import spark.Response
 import spark.Spark.*
 import spark.template.handlebars.HandlebarsTemplateEngine
 
-val connection = r.connection().user("admin", "iusg").db("iusg").hostname("dockhero-adjacent-48582.dockhero.io").connect()
+val urlBase = "http://localhost"
+val fromEmail = "aratzman@iu.edu"
+val emailTest = true
+
+val connection = r.connection().db("iusg").hostname("localhost").connect()
 val handlebars = HandlebarsTemplateEngine()
 val gson = Gson()
-val callbackUrl = "https://iusg.herokuapp.com/cas/callback"
+val callbackUrl = "http://localhost/cas/callback"
 val casUrl = "https://cas.iu.edu/cas/login?cassvc=IU&casurl=$callbackUrl"
 
 val database = Database()
+
+val savedPages = mutableMapOf<String, String>()
 
 fun main() {
     port(getHerokuAssignedPort())
@@ -48,6 +53,8 @@ fun main() {
     statements()
     meetings()
     legislation()
+    administration()
+    awards()
 }
 
 fun createModelMap(
@@ -73,9 +80,9 @@ private fun registerHelpers() {
     val handle = field.get(handlebars) as Handlebars
 
     handle.registerHelper("include-external") { first: String, options: Options ->
-        val url = first
-
-        Handlebars.SafeString(Jsoup.connect(url).get().html())
+        if (!savedPages.containsKey(first)) savedPages[first] = Jsoup.connect(first).get().html()
+        val html =  savedPages.getValue(first)
+        Handlebars.SafeString(html)
     }
 }
 
@@ -86,12 +93,14 @@ internal fun Request.getMap(
     val map = mutableMapOf<String, Any?>()
     map["title"] = pageTitle
     map["page"] = pageId
-    map["user"] = session().attribute<Member?>("user")
+    val user = session().attribute<String?>("user")?.let { database.getMember(it) }
+    map["user"] = user
     map["loggedIn"] = map["user"] != null
     map["committees"] = database.getCommittees()
+    map["steering"] = user?.steering
 
     // meta
-    map["description"] = "IUSG Congressional Internal Site"
+    map["description"] = "IUSG Congressional Site"
 
     return map
 }

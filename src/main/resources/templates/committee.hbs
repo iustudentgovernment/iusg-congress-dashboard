@@ -3,6 +3,8 @@
 {{#with committee}}
     <div class="row" style="margin-top: 30px;">
         <h2 class="display-inline">{{formalName}} Committee</h2>
+        <p>Chaired by <a href="/representatives/{{chair.username}}">{{chair.name}}</a></p>
+
         {{#if loggedIn}}
             {{#if partOfCommittee}}
                 <p style="margin-left: 10px;" class="display-inline">You're a part of this committee. <a

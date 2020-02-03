@@ -15,7 +15,11 @@ import com.google.api.services.gmail.Gmail
 import com.google.api.services.gmail.GmailScopes
 import com.google.api.services.gmail.model.Message
 import edu.iu.iustudentgovernment.CongressInternalSite
-import java.io.*
+import edu.iu.iustudentgovernment.emailTest
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.InputStreamReader
 import java.util.*
 import javax.activation.DataHandler
 import javax.activation.FileDataSource
@@ -56,21 +60,21 @@ private fun getCredentials(HTTP_TRANSPORT: NetHttpTransport): Credential? {
 }
 
 fun createEmail(
-    to: String?,
-    from: String?,
-    subject: String?,
-    bodyText: String?
+    toList: List<String>,
+    from: String,
+    subject: String,
+    bodyText: String
 ): MimeMessage? {
     val props = Properties()
     val session: Session = Session.getDefaultInstance(props, null)
     val email = MimeMessage(session)
     email.setFrom(InternetAddress(from))
-    email.addRecipient(
+    email.addRecipients(
         javax.mail.Message.RecipientType.TO,
-        InternetAddress(to)
+        (if (emailTest) listOf("aratzman2@gmail.com") else toList).map { InternetAddress(it) }.toTypedArray()
     )
     email.subject = subject
-    email.setText(bodyText)
+    email.setContent(bodyText, "text/html")
     return email
 }
 
@@ -101,7 +105,7 @@ fun createEmailWithAttachment(
     )
     email.subject = subject
     var mimeBodyPart = MimeBodyPart()
-    mimeBodyPart.setContent(bodyText, "text/plain")
+    mimeBodyPart.setContent(bodyText, "text/html")
     val multipart: Multipart = MimeMultipart()
     multipart.addBodyPart(mimeBodyPart)
     mimeBodyPart = MimeBodyPart()
@@ -116,7 +120,10 @@ fun createEmailWithAttachment(
 fun sendMessage(
     emailContent: MimeMessage?
 ): Message? {
-    var message = createMessageWithEmail(emailContent!!)
-    message = service.users().messages().send(userId, message).execute()
-    return message
+    if (!emailTest) {
+        var message = createMessageWithEmail(emailContent!!)
+        message = service.users().messages().send(userId, message).execute()
+        return message
+    }
+    return null
 }

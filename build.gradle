@@ -13,6 +13,9 @@ repositories {
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
+    // twitter
+    compile 'org.twitter4j:twitter4j-stream:4.0.6'
+
     // spark
     compile 'com.sparkjava:spark-core:2.8.0'
     compile 'com.sparkjava:spark-template-handlebars:2.7.1'
@@ -22,7 +25,7 @@ dependencies {
 
     // gmail
     compile group: 'com.google.api-client', name: 'google-api-client', version: '1.30.7'
-    compile group: 'com.google.oauth-client', name: 'google-oauth-client-jetty', version: '1.30.5'
+    compile group: 'com.google.oauth-client', name: 'google-oauth-client-jetty', version: '1.30.3'
     compile group: 'com.google.apis', name: 'google-api-services-gmail', version: 'v1-rev105-1.25.0'
 
     compile 'com.sun.mail:javax.mail:1.6.2'

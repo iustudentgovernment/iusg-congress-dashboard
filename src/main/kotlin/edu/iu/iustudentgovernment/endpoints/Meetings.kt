@@ -84,7 +84,7 @@ fun meetings() {
                 formatter.parse(time)
             }
             val title = request.queryParams("name").let { if (it.isEmpty()) null else it }
-            val ledBy = request.queryParams("ledBy").split(",").map { it.trim() }
+            val ledBy = request.queryParams("ledBy").let { if (it.isEmpty()) listOf() else it.split(",").map { it.trim() } }
             val location = request.queryParams("location").let { if (it.isEmpty()) null else it }
             val notes = request.queryParams("notes")
                 .let { if (it.isEmpty()) listOf() else it.split("\n").map { Note(user.username, it) } }

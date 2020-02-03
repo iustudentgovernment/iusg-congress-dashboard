@@ -10,9 +10,10 @@
             <div class="row">
                 <article class="profile feed-item" itemscope="itemscope" itemtype="http://schema.org/Person">
                     <form action="/create-new-statement" method="get">
+                        <input hidden name="statementId" value="{{id}}" id="statementId">
                         <div class="content">
-                            Title: <input id="title" name="title" style="width: 30%" type="text" value="{{title}}">
-                            Text: <textarea id="text" name="text" rows="15" style="width: 65%">{{text}}</textarea>
+                            Title: <input id="title" name="title" style="width: 90%" type="text" value="{{title}}">
+                            Text: <textarea id="text" name="text" rows="15" style="width: 65%">{{& text}}</textarea>
                         </div>
 
                         <input type="submit" class="button" value="Submit"/>

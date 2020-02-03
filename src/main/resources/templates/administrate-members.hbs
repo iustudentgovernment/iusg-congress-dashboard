@@ -1,0 +1,76 @@
+{{> partials/header.hbs }}
+
+    <div id="main-content">
+        <div class="row" style="margin-top: 30px;">
+            <h2>{{title}}</h2>
+        </div>
+
+        <div class="collapsed bg-none">
+            <div class="row">
+                <article class="profile feed-item" itemscope="itemscope" itemtype="http://schema.org/Person">
+                        <div class="content">
+                            <form action="/administration/remove-member" method="get">
+                                <h3>Remove a Member</h3>
+                                <select name="remove-member" style="width: 45%">
+                                    {{#each members}}
+                                        <option name="{{username}}" value="{{username}}">{{name}} ({{username}})</option>
+                                    {{/each}}
+                                </select>
+
+                                <input type="submit" class="button" value="Remove"/>
+                            </form>
+
+                            <br />
+
+                            <form action="/administration/awards-add-whitcomb" method="get">
+                                <h3>Award a member the Whitcomb Award for this week</h3>
+                                <select name="username" style="width: 45%">
+                                    {{#each members}}
+                                        <option name="{{username}}" value="{{username}}">{{name}} ({{username}})</option>
+                                    {{/each}}
+                                </select>
+
+                                <input type="submit" class="button" value="Award"/>
+                            </form>
+
+                            <br />
+
+                            <form action="/administration/add-member" method="get">
+                                <h3>Add a Member</h3>
+                                IU username: <input name="username" style="width: 30%" type="text">
+                                Full Name: <input name="name" style="width: 30%" type="text">
+                                Email: <input name="email" style="width: 30%" type="email">
+                                Phone Number: <input name="phone" style="width: 30%" type="text">
+
+                                Constituency: <input name="constituency" style="width: 30%" type="text">
+
+                                <input type="submit" class="button" value="Add Member"/>
+                            </form>
+
+                            <br />
+
+                            <h3>Set Committee Chairs</h3>
+
+                            {{#each committees}}
+                                <div style="margin-top: 50px; margin-bottom: 50px;">
+                                    <h4><b>{{formalName}}</b> Committee</h4>
+                                    <p>Current chair: {{& chair.asLink}}</p>
+
+                                    <form action="/administration/set-chair/{{id}}" method="get">
+                                        <select name="set-chair" style="width: 45%">
+                                            {{#each members}}
+                                                <option name="{{username}}" value="{{username}}">{{name}} ({{username}})</option>
+                                            {{/each}}
+                                        </select>
+
+                                        <input type="submit" class="button" value="Set Chair"/>
+                                    </form>
+                                </div>
+                            {{/each}}
+                        </div>
+                </article>
+            </div>
+        </div>
+    </div>
+
+{{> partials/footer.hbs }}

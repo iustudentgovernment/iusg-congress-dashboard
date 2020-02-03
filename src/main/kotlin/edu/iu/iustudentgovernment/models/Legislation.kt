@@ -10,12 +10,18 @@ data class Vote(
     val quorum: Int,
     val requiredPercentToPass: Double,
     val votes: MutableList<IndividualVote>
-) {
+) :Idable{
     val valid get() = votes.size >= quorum && !votePercent.isNaN()
     val isValid get() = votes.size >= quorum && !votePercent.isNaN()
     val votePercent get() = if (votes.isEmpty()) Double.NaN else (votes.sumBy { it.vote.value }.toDouble() / votes.size)
     val passed get() = valid && votePercent >= requiredPercentToPass
     val numVotes get() = votes.size
+
+    val resultString get() = "${votes.count { it.vote == VoteType.YES }} members voting <u>Yes</u>, ${votes.count { it.vote == VoteType.NO }} members voting <u>No</u>, " +
+            "and ${votes.count { it.vote == VoteType.ABSTAIN }} members voting <u>Abstain</u>, with required quorum of $quorum members."
+
+    override fun getPermanentId() = voteId
+
 }
 
 data class IndividualVote(
@@ -26,7 +32,7 @@ data class IndividualVote(
 )
 
 enum class LegislationStage(val readable: String, val voteable: Boolean) {
-    COMMITTEE("Committee", true), FIRST_READING("First Reading", false),
+    COMMITTEE("Committee", true), GRAMMARIAN("Grammarian", false), FIRST_READING("First Reading", false),
     SECOND_READING("Second Reading", false), FLOOR("Floor Vote", true),
     SPEAKER("Speaker Signature", false), SPEAKER_VETO("Speaker Veto Override", true),
     PRESIDENT("President Signature", false), VETO("Veto Override Vote", true),
@@ -40,11 +46,13 @@ enum class VoteType(val readable: String, val value: Int) {
 
 data class Legislation(
     val name: String,
+    val description: String,
     val id: String,
     val authorUsername: String,
     var committeeId: String,
     val legislationBoxUrl: String,
     var active: Boolean,
+    var fundingBill: Boolean,
     val cosponsors: MutableList<String>,
     var currentStage: LegislationHistory = LegislationHistory(
         LegislationStage.COMMITTEE,
@@ -53,9 +61,13 @@ data class Legislation(
         null,
         listOf()
     ),
+
     val legislationHistory: MutableList<LegislationHistory>,
-    val originalCommittee: String = committeeId
-) {
+    var originalCommittee: String = committeeId
+):Idable {
+
+    override fun getPermanentId() = id
+
     val failed get() = currentStage.legislationStage == LegislationStage.FAILED
     val passed
         get() = legislationHistory.find { it.legislationStage == LegislationStage.FLOOR }
@@ -64,10 +76,13 @@ data class Legislation(
     val committee get() = database.getCommittee(committeeId)!!
     val author get() = database.getMember(authorUsername)!!
     val cosponsorsString get() = cosponsors.joinToString(", ") { database.getMember(it)!!.asLink }
+    val originatingCommittee get() = database.getCommittee(originalCommittee)!!
+    val checkOriginatingCommittee get() = committeeId == originalCommittee
 
     val nextStage
         get() = when (currentStage.legislationStage) {
-            LegislationStage.COMMITTEE -> LegislationStage.FIRST_READING
+            LegislationStage.COMMITTEE -> LegislationStage.GRAMMARIAN
+            LegislationStage.GRAMMARIAN -> LegislationStage.FIRST_READING
             LegislationStage.FIRST_READING -> LegislationStage.SECOND_READING
             LegislationStage.SECOND_READING -> LegislationStage.FLOOR
             LegislationStage.FLOOR -> LegislationStage.SPEAKER
@@ -85,12 +100,16 @@ fun List<Legislation>.filterCommittee(vararg committees: Committee) = filter { l
 
 data class LegislationHistory(
     val legislationStage: LegislationStage,
-    val committeeId: String?,
+    var committeeId: String?,
     var active: Boolean,
     var voteId: String?,
     val notes: List<Note>
 ) {
+    var advancedByUsername: String? = null
+
     val vote get() = voteId?.let { database.getVote(it) }
+    val whoAdvancedString get() = advancedByUsername?.let { database.getMember(it)?.asLink }
+    val historyCommitteeString get() = committeeId?.let { database.getCommittee(it)?.asLink }
 }
 
 data class Note(val authorUsername: String, val text: String)

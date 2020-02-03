@@ -1,15 +1,17 @@
 package edu.iu.iustudentgovernment.database
 
 import com.rethinkdb.RethinkDB.r
+import edu.iu.iustudentgovernment.*
 import edu.iu.iustudentgovernment.authentication.Member
 import edu.iu.iustudentgovernment.authentication.Role
 import edu.iu.iustudentgovernment.authentication.Title
-import edu.iu.iustudentgovernment.connection
-import edu.iu.iustudentgovernment.database
-import edu.iu.iustudentgovernment.gson
 import edu.iu.iustudentgovernment.models.*
 import edu.iu.iustudentgovernment.utils.asPojo
+import edu.iu.iustudentgovernment.utils.createEmail
 import edu.iu.iustudentgovernment.utils.queryAsArrayList
+import edu.iu.iustudentgovernment.utils.sendMessage
+import spark.ModelAndView
+import java.util.concurrent.ConcurrentHashMap
 
 private val membersTable = "users"
 private val committeesTable = "committees"
@@ -22,6 +24,9 @@ private val committeeFilesTable = "committee_files"
 private val meetingFilesTable = "meeting_files"
 private val votesTable = "votes"
 private val statementsTable = "statements"
+private val keysTable = "keys"
+private val messagesTable = "messages"
+private val whitcombTable = "whitcomb"
 
 private val tables = listOf(
     membersTable to "username",
@@ -34,17 +39,40 @@ private val tables = listOf(
     meetingFilesTable to "fileId",
     committeeFilesTable to "fileId",
     votesTable to "voteId",
-    statementsTable to "id"
+    statementsTable to "id",
+    keysTable to "id",
+    messagesTable to "id",
+    whitcombTable to "week"
 ).toMap()
 
+val caches = ConcurrentHashMap(
+    listOf<Pair<String, MutableList<Idable>>>(
+        membersTable to mutableListOf(),
+        legislationTable to mutableListOf(),
+        committeeMembershipsTable to mutableListOf(),
+        committeesTable to mutableListOf(),
+        meetingMinutesTable to mutableListOf(),
+        meetingsTable to mutableListOf(),
+        attendanceTable to mutableListOf(),
+        meetingFilesTable to mutableListOf(),
+        committeeFilesTable to mutableListOf(),
+        votesTable to mutableListOf(),
+        statementsTable to mutableListOf(),
+        messagesTable to mutableListOf(),
+        whitcombTable to mutableListOf()
+    ).toMap().toMutableMap()
+)
+
 class Database {
+
     init {
         if (r.dbList().run<List<String>>(connection).contains("iusg")) r.dbDrop("iusg").run<Any>(connection)
         if (!r.dbList().run<List<String>>(connection).contains("iusg")) {
             r.dbCreate("iusg").run<Any>(connection)
             tables.forEach { (table, key) ->
                 if (!r.tableList().run<List<String>>(connection).contains(table)) {
-                    r.tableCreate(table).optArg("primary_key", key).run<Any>(connection)
+                    if (key != "id") r.tableCreate(table).optArg("primary_key", key).run<Any>(connection)
+                    else r.tableCreate(table).run<Any>(connection)
                 }
             }
 
@@ -54,14 +82,14 @@ class Database {
 
     fun insertInitial() {
 
+
         // add committees
         insertCommittee(
             Committee(
                 "Steering",
                 "steering",
                 "ajirelan",
-                1,
-                "Lorem ipsum dolor sit amet, nisl causae ei vim, an augue persius mel, nam dicit epicurei lucilius in. Ex per solet percipitur, soleat interpretaris ius ei."
+                1
             )
         )
         insertCommittee(
@@ -69,8 +97,7 @@ class Database {
                 "Environmental Affairs",
                 "environment",
                 "ajirelan",
-                0,
-                "Lorem ipsum dolor sit amet, nisl causae ei vim, an augue persius mel, nam dicit epicurei lucilius in. Ex per solet percipitur, soleat interpretaris ius ei."
+                0
             )
         )
         insertCommittee(
@@ -78,29 +105,34 @@ class Database {
                 "Oversight",
                 "oversight",
                 "arouleau",
-                0,
-                "Lorem ipsum dolor sit amet, nisl causae ei vim, an augue persius mel, nam dicit epicurei lucilius in. Ex per solet percipitur, soleat interpretaris ius ei."
+                0
             )
         )
         insertCommittee(
             Committee(
-                "Student Relations",
+                "Student Life",
                 "student",
                 "ajirelan",
-                0,
-                "Lorem ipsum dolor sit amet, nisl causae ei vim, an augue persius mel, nam dicit epicurei lucilius in. Ex per solet percipitur, soleat interpretaris ius ei."
+                0
             )
         )
         insertCommittee(
             Committee(
-                "Congress",
+                "General Assembly",
                 "congress",
                 "ajirelan",
-                0,
-                "Lorem ipsum dolor sit amet, nisl causae ei vim, an augue persius mel, nam dicit epicurei lucilius in. Ex per solet percipitur, soleat interpretaris ius ei."
+                0
             )
         )
 
+        database.getCommittees().forEach { committee ->
+            database.insertMessage(
+                Message(
+                    committee.descriptionId,
+                    "Lorem ipsum dolor sit amet, nisl causae ei vim, an augue persius mel, nam dicit epicurei lucilius in. Ex per solet percipitur, soleat interpretaris ius ei."
+                )
+            )
+        }
 
         // add steering members
         insertMember(
@@ -198,6 +230,19 @@ class Database {
         updateCommitteeMembership(getCommitteeMembershipsForMember("arouleau").first { it.committeeId == "congress" }
             .copy(role = Role.PRIVILEGED_MEMBER))
 
+        insertMessage(
+            Message(
+                "speaker_message",
+                "Lorem ipsum dolor sit amet, nisl causae ei vim, an augue persius mel, nam dicit epicurei lucilius in. Ex per solet percipitur, soleat interpretaris ius ei. An eum clita putant habemus, reque oportere forensibus nam ad, ea mundi consequat argumentum usu. Ut nec atqui ancillae, in sit solum labores detraxit."
+            )
+        )
+
+        insertMessage(
+            Message(
+                "whitcomb_description",
+                "Lorem ipsum dolor sit amet, nisl causae ei vim, an augue persius mel, nam dicit epicurei lucilius in. Ex per solet percipitur, soleat interpretaris ius ei. An eum clita putant habemus, reque oportere forensibus nam ad, ea mundi consequat argumentum usu. Ut nec atqui ancillae, in sit solum labores detraxit."
+            )
+        )
 
         // create meeting
         insertMeeting(
@@ -266,12 +311,14 @@ class Database {
         insertLegislation(
             Legislation(
                 "Late-Night Transportation",
+                "To provide safe, affordable, and accessible late-night transportation options for IU students in the vicinity of the Indiana University Bloomington campus",
                 database.getUuid(),
-                "ajirelan",
+                "aratzman",
                 "student",
                 "https://iu.box.com/s/6t72190q8c4uqvlvwkfw6ccd6zkman5s",
                 true,
-                mutableListOf(),
+                fundingBill = true,
+                cosponsors = mutableListOf(),
                 legislationHistory = mutableListOf()
             )
         )
@@ -284,12 +331,24 @@ class Database {
     fun getMembers() = getAll<Member>(membersTable).filter { it.active }.sortedBy { it.name.split(" ").last() }
     fun insertMember(member: Member) {
         insert(membersTable, member)
-        insertCommitteeMembership(CommitteeMembership(member.username, getUuid(), "congress", Role.MEMBER))
+        if (member.active) insertCommitteeMembership(
+            CommitteeMembership(
+                member.username,
+                getUuid(),
+                "congress",
+                Role.MEMBER
+            )
+        )
     }
 
     fun updateMember(member: Member) = update(membersTable, member.username, member)
 
-    fun deleteMember(memberId: String) = delete(membersTable, memberId)
+    fun deleteMember(memberId: String) {
+        val member = getMember(memberId)!!
+        member.active = false
+
+        updateMember(member)
+    }
 
 
     // committee memberships
@@ -332,7 +391,34 @@ class Database {
         getMeetings().filter { it.time <= System.currentTimeMillis() }.sortedBy { it.time }
 
     fun getMeeting(id: Any): Meeting? = get(meetingsTable, id)
-    fun insertMeeting(meeting: Meeting) = insert(meetingsTable, meeting)
+    fun insertMeeting(meeting: Meeting) {
+        insert(meetingsTable, meeting)
+
+        if (meeting.time >= System.currentTimeMillis()) {
+            val committee = meeting.committee!!
+            val email = handlebars.render(
+                ModelAndView(
+                    mapOf(
+                        "committee" to committee,
+                        "date" to meeting.date,
+                        "location" to meeting.location,
+                        "url" to "$urlBase/meetings/${meeting.meetingId}",
+                        "urlBase" to urlBase
+                    ), "emails/new-meeting.hbs"
+                )
+            )
+
+            sendMessage(
+                createEmail(
+                    meeting.committee!!.members.map { it.email },
+                    fromEmail,
+                    "${committee.formalName} meeting at ${meeting.date}",
+                    email
+                )
+            )
+        }
+    }
+
     fun updateMeeting(meeting: Meeting) = update(meetingsTable, meeting.meetingId, meeting)
     fun deleteMeeting(meetingId: String) = delete(meetingsTable, meetingId)
 
@@ -366,10 +452,61 @@ class Database {
 
 
     // legislation
-    fun insertLegislation(legislation: Legislation) = insert(legislationTable, legislation)
+    fun insertLegislation(legislation: Legislation) {
+        insert(legislationTable, legislation)
+
+        val members = legislation.committee.members.map { it.email }
+
+        val email = handlebars.render(
+            ModelAndView(
+                mapOf(
+                    "legislation" to legislation,
+                    "url" to "$urlBase/legislation/view/${legislation.id}",
+                    "urlBase" to urlBase
+                ), "emails/legislation-new.hbs"
+            )
+        )
+
+        sendMessage(
+            createEmail(
+                members,
+                fromEmail,
+                "New Legislation | ${legislation.name}",
+                email
+            )
+        )
+
+    }
+
     fun getLegislation() = getAll<Legislation>(legislationTable)
     fun getLegislation(id: String): Legislation? = get(legislationTable, id)
-    fun updateLegislation(legislation: Legislation) = update(legislationTable, legislation.id, legislation)
+    fun updateLegislation(legislation: Legislation) {
+        update(legislationTable, legislation.id, legislation)
+
+        if (legislation.enacted) {
+            val members = legislation.committee.members.map { it.email }
+
+            val email = handlebars.render(
+                ModelAndView(
+                    mapOf(
+                        "legislation" to legislation,
+                        "url" to "$urlBase/legislation/view/${legislation.id}",
+                        "urlBase" to urlBase
+                    ), "emails/legislation-enacted.hbs"
+                )
+            )
+
+            sendMessage(
+                createEmail(
+                    members,
+                    fromEmail,
+                    "Legislation Has Been Enacted | ${legislation.name}",
+                    email
+                )
+            )
+        }
+    }
+
     fun deleteLegislation(legislationId: String) = delete(legislationTable, legislationId)
     fun getEnactedLegislation() = getLegislation().filter { it.enacted }
     fun getFailedLegislation() = getLegislation().filter { it.failed }
@@ -412,19 +549,63 @@ class Database {
     fun updateStatement(statement: Statement) = update(statementsTable, statement.id, statement)
     fun deleteStatement(statementId: String) = delete(statementsTable, statementId)
 
+    // messages
+    fun getMessage(id: String): Message? = get(messagesTable, id)
+    fun updateMessage(message: Message) = update(messagesTable, message.id, message)
+    fun updateMessage(id: String, value: Any) = update(messagesTable, id, Message(id, value))
+    fun insertMessage(message: Message) = insert(messagesTable, message)
+    fun getSpeakerMessage() = getMessage("speaker_message")!!.value
+    fun getWhitcombDescription() = getMessage("whitcomb_description")!!.value.toString()
+
+    // whitcomb award
+    fun getAllWhitcombAwardees() = getAll<Whitcomb>(whitcombTable)
+    fun getWhitcombAwardsForMember(username: String) = getAllWhitcombAwardees().filter { it.username == username }
+    fun insertWhitcombAward(award: Whitcomb) = insert(whitcombTable, award)
+
+    // utils
+
     fun getUuid() = r.uuid().run<String>(connection)!!
 
 
-    fun update(table: String, id: Any, obj: Any) =
-        r.table(table).get(id).replace(r.json(gson.toJson(obj))).run<Any>(connection)
+    fun update(table: String, id: Any, obj: Idable): Any? {
+        if (table in caches.keys) {
+            caches[table]!!.removeIf { it.getPermanentId() == id }
+            caches[table]!!.add(obj)
+        }
+        return r.table(table).get(id).replace(r.json(gson.toJson(obj))).run<Any>(connection)
+    }
 
-    fun delete(table: String, id: Any) = r.table(table).get(id).delete().run<Any>(connection)
+    fun delete(table: String, id: Any): Any? {
+        if (table in caches.keys) caches[table]!!.removeIf { it.getPermanentId() == id }
+        return r.table(table).get(id).delete().run<Any>(connection)
+    }
 
-    fun <T> insert(table: String, obj: T) = r.table(table).insert(r.json(gson.toJson(obj))).run<Any>(connection)
+    fun <T: Idable> insert(table: String, obj: T): Any? {
+        if (table in caches.keys) caches[table]!!.add(obj)
+        return r.table(table).insert(r.json(gson.toJson(obj))).run<Any>(connection)
+    }
 
-    inline fun <reified T : Any> getAll(table: String) =
-        r.table(table).run<Any>(connection).queryAsArrayList(gson, T::class.java).filterNotNull()
+    inline fun <reified T : Idable> getAll(table: String): List<T> {
+        return if (table in caches.keys && caches[table]!!.isNotEmpty()) {
+            caches[table]!!.mapNotNull { it as? T }
+        } else {
+            val values = r.table(table).run<Any>(connection).queryAsArrayList(gson, T::class.java).filterNotNull()
+            caches[table]!!.addAll(values)
 
-    inline fun <reified T> get(table: String, id: Any) =
-        asPojo(gson, r.table(table).get(id).run(connection), T::class.java)
+            values
+        }
+    }
+
+    inline fun <reified T:Idable> get(table: String, id: Any): T? {
+        return if (table in caches.keys) {
+            val cache = caches[table]!!
+            val found = cache.find { it.getPermanentId() == id }
+            if (found == null) {
+                val retrieved = asPojo(gson, r.table(table).get(id).run(connection), T::class.java)
+                (retrieved as? Idable)?.let { cache.add(it) }
+            }
+
+            cache.find { it.getPermanentId() == id } as? T
+        } else asPojo(gson, r.table(table).get(id).run(connection), T::class.java)
+    }
 }

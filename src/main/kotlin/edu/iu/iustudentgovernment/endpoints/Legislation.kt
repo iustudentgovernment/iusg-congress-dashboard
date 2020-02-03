@@ -13,7 +13,7 @@ import spark.Spark.path
 import kotlin.math.roundToInt
 
 private fun canEditLegislation(member: Member, committee: Committee) =
-    member.isAdministrator() || committee.isPrivileged(member)
+    member.isAdministrator() || committee.isPrivileged(member) || member.title.map { it.rank }.max()!! >= 2
 
 fun legislation() {
     path("/legislation") {
@@ -64,15 +64,27 @@ fun legislation() {
                         LegislationHistory(LegislationStage.FAILED, legislation.committeeId, false, null, listOf())
                 } else {
                     val nextStage = legislation.nextStage!!
+
                     legislation.currentStage =
                         LegislationHistory(nextStage, legislation.committeeId, true, null, listOf())
+
+                    if (oldStage.legislationStage == LegislationStage.COMMITTEE && legislation.fundingBill) {
+                        if (legislation.committeeId != "oversight" && legislation.committeeId == legislation.originalCommittee) {
+                            legislation.originalCommittee = legislation.committeeId
+                            legislation.committeeId = "oversight"
+                            legislation.currentStage =
+                                LegislationHistory(LegislationStage.COMMITTEE, "oversight", true, null, listOf())
+                        } else if (legislation.committeeId == "oversight") {
+                            legislation.currentStage =
+                                LegislationHistory(LegislationStage.GRAMMARIAN, "congress", true, null, listOf())
+                            legislation.committeeId = legislation.originalCommittee
+                        }
+                    }
                 }
 
-                if (legislation.currentStage.legislationStage == LegislationStage.FIRST_READING) {
+                if (legislation.currentStage.legislationStage == LegislationStage.FIRST_READING || legislation.currentStage.legislationStage == LegislationStage.GRAMMARIAN) {
                     legislation.committeeId = "congress"
-                }
-
-                if (legislation.currentStage.legislationStage == LegislationStage.ENACTED) {
+                } else if (legislation.currentStage.legislationStage == LegislationStage.ENACTED) {
                     legislation.legislationHistory.add(legislation.currentStage)
                     legislation.active = false
                 }
@@ -90,15 +102,36 @@ fun legislation() {
                     .let { !canEditLegislation(user, it) } && !user.isAdministrator())
             ) response.redirect("/legislation")
             else {
-                legislation.legislationHistory.add(legislation.currentStage)
-                legislation.currentStage =
-                    LegislationHistory(legislation.nextStage!!, legislation.committeeId, true, null, listOf())
+                legislation.currentStage.voteId = null
+                legislation.currentStage.advancedByUsername = user.username
 
-                if (legislation.currentStage.legislationStage == LegislationStage.ENACTED) {
-                    legislation.currentStage.active = false
-                    legislation.active = false
-                    legislation.committeeId = legislation.originalCommittee
-                    legislation.legislationHistory.add(legislation.currentStage)
+                legislation.legislationHistory.add(legislation.currentStage)
+                if (legislation.fundingBill && legislation.currentStage
+                        .legislationStage == LegislationStage.COMMITTEE && legislation.committeeId != "oversight"
+                ) {
+                    if (legislation.committeeId != "oversight") {
+                        legislation.committeeId = "oversight"
+                        legislation.currentStage =
+                            LegislationHistory(LegislationStage.COMMITTEE, "oversight", true, null, listOf())
+                    }
+                } else {
+                   if (legislation.currentStage.legislationStage == LegislationStage.COMMITTEE) legislation.committeeId = legislation.originalCommittee
+
+                    legislation.currentStage =
+                        LegislationHistory(legislation.nextStage!!, legislation.committeeId, true, null, listOf())
+
+                    if (legislation.currentStage.legislationStage == LegislationStage.ENACTED) {
+                        legislation.currentStage.active = false
+                        legislation.currentStage.advancedByUsername = user.username
+                        legislation.active = false
+                        legislation.committeeId = legislation.originalCommittee
+                        legislation.legislationHistory.add(legislation.currentStage)
+                    }
+                }
+
+                if (legislation.currentStage.legislationStage == LegislationStage.FIRST_READING) {
+                    legislation.committeeId = "congress"
+                    legislation.currentStage.committeeId = "congress"
                 }
 
                 database.updateLegislation(legislation)
@@ -114,6 +147,8 @@ fun legislation() {
                     .let { !canEditLegislation(user, it) } && !user.isAdministrator())
             ) response.redirect("/legislation")
             else {
+                legislation.currentStage.advancedByUsername = user.username
+
                 legislation.legislationHistory.add(legislation.currentStage)
                 if (legislation.currentStage.legislationStage == LegislationStage.PRESIDENT) {
                     legislation.currentStage =
@@ -121,6 +156,9 @@ fun legislation() {
                 } else if (legislation.currentStage.legislationStage == LegislationStage.SPEAKER) {
                     legislation.currentStage =
                         LegislationHistory(LegislationStage.SPEAKER_VETO, legislation.committeeId, true, null, listOf())
+                } else if (legislation.currentStage.legislationStage == LegislationStage.GRAMMARIAN) {
+                    legislation.currentStage =
+                        LegislationHistory(LegislationStage.COMMITTEE, legislation.committeeId, true, null, listOf())
                 } else {
                     legislation.active = false
                     legislation.currentStage =
@@ -261,19 +299,23 @@ fun legislation() {
         if (user == null) response.redirect("/login")
         else {
             val name = request.queryParams("name")?.nullifyEmpty()
+            val description = request.queryParams("description")?.nullifyEmpty()
             val billUrl = request.queryParams("billUrl")?.nullifyEmpty()
             val committee = request.queryParams("committee")?.nullifyEmpty()?.let { database.getCommittee(it) }
             val legislationId = request.queryParams("legislationId")?.nullifyEmpty()
+            val fundingBill = request.queryParams("fundingBill") == "yes"
 
-            if (name == null || billUrl == null || committee == null) response.redirect("/legislation/submit")
+            if (description == null || name == null || billUrl == null || committee == null) response.redirect("/legislation/submit")
             else {
                 val legislation = Legislation(
                     name,
+                    description,
                     legislationId ?: database.getUuid(),
                     user.username,
                     committee.id,
                     billUrl,
                     true,
+                    fundingBill,
                     mutableListOf(),
                     legislationHistory = mutableListOf()
                 )

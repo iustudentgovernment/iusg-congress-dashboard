@@ -1,6 +1,17 @@
 {{> partials/header.hbs }}
 
 <div id="main-content">
+    {{#if user.steering}}
+        <div class="row" style="margin-top: 30px;">
+            <h2>Administration</h2>
+            <p>
+                <a href="/administration/members">Member Administration</a>
+                <br/>
+                <a href="/administration/messages">Global Message Administration</a>
+            </p>
+        </div>
+    {{/if}}
+
     <div class="row" style="margin-top: 30px;">
         <h2>Member Info</h2>
     </div>

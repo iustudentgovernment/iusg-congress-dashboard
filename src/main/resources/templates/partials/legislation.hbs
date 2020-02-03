@@ -1,16 +1,27 @@
 <article style="margin-left: 25px;" class="profile" itemscope="itemscope" itemtype="http://schema.org/Person">
     <div class="content"><p class="no-margin size-1"><a href="/legislation/view/{{id}}">{{name}}</a></p>
         <dl class="meta inline">
+            <dt>Description:</dt>
+            <dd>{{& description }}</dd>
+
+
             <dt>Submitted by:</dt>
             <dd>{{& author.asLink }}</dd>
-
             {{#if cosponsors}}
                 <dt>Cosponsors:</dt>
                 <dd>{{& cosponsorsString }}</dd>
             {{/if}}
 
+            <dt>Is Funding Bill:</dt>
+            <dd>{{fundingBill}}</dd>
+
             <dt>Committee:</dt>
-            <dd><a href="/committees/{{committee.id}}">{{committee.formalName}}</a></dd>
+            <dd><a href="/committees/{{committee.id}}">{{committee.formalName}} Committee</a></dd>
+
+            {{#unless checkOriginatingCommittee}}
+                <dt>Referred by:</dt>
+                <dd><a href="/committees/{{originatingCommittee.id}}">{{originatingCommittee.formalName}} Committee</a></dd>
+            {{/unless}}
 
             <dt>Bill text:</dt>
             <dd><a target="_blank" href="{{& legislationBoxUrl }}">link</a></dd>

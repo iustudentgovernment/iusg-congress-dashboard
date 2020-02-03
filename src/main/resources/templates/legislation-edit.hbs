@@ -13,15 +13,28 @@
 
                     <div class="content">
                         Bill Name: <input id="name" name="name" style="width: 30%" type="text" value="{{bill.name}}">
-                        Bill Box Url: <input type="text" id="billUrl" style="width: 25%;" name="billUrl" value="{{bill.legislationBoxUrl}}">
+                        Bill Box Url: <input type="text" id="billUrl" style="width: 25%;" name="billUrl"
+                                             value="{{bill.legislationBoxUrl}}">
+                        Bill Description: <textarea id="description" name="description" style="width: 50%">
+
                         Committee:
-                        <br />
+                        <br/>
                         <select name="committee" style="width: 25%">
                             {{#each inCommittees}}
                                 <option name="{{formalName}}" value="{{id}}">{{formalName}}</option>
                             {{/each}}
-                            <option selected name="{{bill.committee.formalName}}" value="{{bill.committeeId}}">{{bill.committee.formalName}}</option>
+                            <option selected name="{{bill.committee.formalName}}"
+                                    value="{{bill.committeeId}}">{{bill.committee.formalName}}</option>
                         </select>
+
+                        Is Funding Bill:
+                        <br/>
+                        <select name="fundingBill" style="width: 25%">
+                            <option {{#if fundingBill}}selected{{/if}} value="yes">Yes</option>
+                            <option {{#unless fundingBill}}selected{{/unless}} value="no">No</option>
+
+                        </select>
+
                     </div>
 
                     <input type="submit" class="button" value="Submit"/>
