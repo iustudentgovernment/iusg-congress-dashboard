@@ -66,7 +66,11 @@ val caches = ConcurrentHashMap(
 class Database {
 
     init {
+        println("Starting db setup")
+
+        println("Inserting db")
         if (r.dbList().run<List<String>>(connection).contains("iusg")) r.dbDrop("iusg").run<Any>(connection)
+        println("Inserted db. Inserting tables")
         if (!r.dbList().run<List<String>>(connection).contains("iusg")) {
             r.dbCreate("iusg").run<Any>(connection)
             tables.forEach { (table, key) ->
@@ -580,7 +584,7 @@ class Database {
         return r.table(table).get(id).delete().run<Any>(connection)
     }
 
-    fun <T: Idable> insert(table: String, obj: T): Any? {
+    fun <T : Idable> insert(table: String, obj: T): Any? {
         if (table in caches.keys) caches[table]!!.add(obj)
         return r.table(table).insert(r.json(gson.toJson(obj))).run<Any>(connection)
     }
@@ -596,7 +600,7 @@ class Database {
         }
     }
 
-    inline fun <reified T:Idable> get(table: String, id: Any): T? {
+    inline fun <reified T : Idable> get(table: String, id: Any): T? {
         return if (table in caches.keys) {
             val cache = caches[table]!!
             val found = cache.find { it.getPermanentId() == id }
