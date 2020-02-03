@@ -29,6 +29,8 @@ val database = Database()
 val savedPages = mutableMapOf<String, String>()
 
 fun main() {
+    println("Starting up")
+
     port(getHerokuAssignedPort())
     staticFileLocation("/static")
 
@@ -43,6 +45,8 @@ fun main() {
         exception.printStackTrace()
     }
 
+    println("Web server started")
+
     home()
     contact()
     member()
@@ -54,7 +58,11 @@ fun main() {
     administration()
     awards()
 
+    println("Endpoints registered")
+
     database.insertInitial()
+
+    println("Db started")
 }
 
 fun createModelMap(
