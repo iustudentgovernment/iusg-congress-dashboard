@@ -14,7 +14,7 @@ import spark.Response
 import spark.Spark.*
 import spark.template.handlebars.HandlebarsTemplateEngine
 
-val urlBase = "http://localhost"
+val urlBase = "http://iusg.herokuapp.com"
 val fromEmail = "aratzman@iu.edu"
 val emailTest = true
 
@@ -42,8 +42,6 @@ fun main() {
     exception(Exception::class.java) { exception, _, _ ->
         exception.printStackTrace()
     }
-
-    database.insertInitial()
 
     home()
     contact()
