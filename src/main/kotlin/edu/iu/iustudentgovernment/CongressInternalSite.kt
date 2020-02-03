@@ -14,7 +14,7 @@ import spark.Response
 import spark.Spark.*
 import spark.template.handlebars.HandlebarsTemplateEngine
 
-val urlBase = "http://iusg.herokuapp.com"
+val urlBase = "https://iusg.herokuapp.com"
 val fromEmail = "aratzman@iu.edu"
 val emailTest = true
 
