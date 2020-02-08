@@ -13,7 +13,10 @@
             {{/if}}
 
             <dt>Is Funding Bill:</dt>
-            <dd>{{fundingBill}}</dd>
+            <dd>{{#if fundingBill}}Yes{{else}}No{{/if}}</dd>
+
+            <dt>Is Bylaws Revision Bill:</dt>
+            <dd>{{#if bylawsBill}}Yes{{else}}No{{/if}}</dd>
 
             <dt>Committee:</dt>
             <dd><a href="/committees/{{committee.id}}">{{committee.formalName}} Committee</a></dd>

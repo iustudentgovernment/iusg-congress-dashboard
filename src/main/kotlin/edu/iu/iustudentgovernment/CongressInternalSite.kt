@@ -4,61 +4,80 @@ import com.github.jknack.handlebars.Handlebars
 import com.github.jknack.handlebars.Options
 import com.google.gson.Gson
 import com.rethinkdb.RethinkDB.r
+import com.rethinkdb.net.Connection
 import edu.iu.iustudentgovernment.authentication.cas
 import edu.iu.iustudentgovernment.database.Database
 import edu.iu.iustudentgovernment.endpoints.*
 import edu.iu.iustudentgovernment.utils.render
+import edu.iu.iustudentgovernment.utils.setLastUrl
 import org.jsoup.Jsoup
 import spark.Request
 import spark.Response
 import spark.Spark.*
 import spark.template.handlebars.HandlebarsTemplateEngine
 
-val urlBase = "https://iusg.herokuapp.com"
+lateinit var urlBase: String
 val fromEmail = "aratzman@iu.edu"
 val emailTest = true
 
-val connection = r.connection().db("iusg").user("admin", "iusg").hostname("dockhero-adjacent-48582.dockhero.io").connect()
+lateinit var connection: Connection
 val handlebars = HandlebarsTemplateEngine()
 val gson = Gson()
-val callbackUrl = "$urlBase/cas/callback"
-val casUrl = "https://cas.iu.edu/cas/login?cassvc=IU&casurl=$callbackUrl"
+lateinit var callbackUrl: String
+lateinit var casUrl: String
 
-val database = Database()
+lateinit var database: Database
 
 val savedPages = mutableMapOf<String, String>()
 
-fun main() {
-        println("Starting up")
+fun main(args: Array<String>) {
+    println("Starting up")
 
-        port(getHerokuAssignedPort())
-        staticFileLocation("/static")
+    val databaseHostname = args[0]
+    urlBase = args[1]
+    val cleanse = args[2].toBoolean()
 
-        registerHelpers()
+    connection = if (databaseHostname == "localhost") r.connection().db("iusg").hostname(databaseHostname).connect()
+    else r.connection().db("iusg").user("admin", "iusg").hostname(databaseHostname).connect()
 
-        notFound { request, _ ->
-            val map = request.getMap("404 - Not Found", "404")
-            handlebars.render(map, "404.hbs")
-        }
+    callbackUrl = "$urlBase/cas/callback"
+    casUrl = "https://cas.iu.edu/cas/login?cassvc=IU&casurl=$callbackUrl"
 
-        exception(Exception::class.java) { exception, _, _ ->
-            exception.printStackTrace()
-        }
 
-        println("Web server started")
+    if (databaseHostname == "localhost") {
+        database = Database(cleanse)
+        if (cleanse) database.insertInitial()
+    } else database = Database(false)
 
-        home()
-        contact()
-        member()
-        committees()
-        cas()
-        statements()
-        meetings()
-        legislation()
-        administration()
-        awards()
+    port(getHerokuAssignedPort())
+    staticFileLocation("/static")
 
-        println("Endpoints registered")
+    registerHelpers()
+
+    notFound { request, _ ->
+        val map = request.getMap("404 - Not Found", "404")
+        handlebars.render(map, "404.hbs")
+    }
+
+    exception(Exception::class.java) { exception, _, _ ->
+        exception.printStackTrace()
+    }
+
+    println("Web server started")
+
+    home()
+    contact()
+    member()
+    committees()
+    cas()
+    statements()
+    meetings()
+    legislation()
+    administration()
+    awards()
+    initiatives()
+
+    println("Endpoints registered")
 }
 
 fun createModelMap(
@@ -72,7 +91,7 @@ fun createModelMap(
     map["request"] = request
     map["response"] = response
     map["stylesheets"] = stylesheets
-    map["scripts"] = scripts;
+    map["scripts"] = scripts
     map.putAll(request.getMap(title ?: "Home", title ?: "home"))
 
     return map
@@ -85,7 +104,7 @@ private fun registerHelpers() {
 
     handle.registerHelper("include-external") { first: String, options: Options ->
         if (!savedPages.containsKey(first)) savedPages[first] = Jsoup.connect(first).get().html()
-        val html =  savedPages.getValue(first)
+        val html = savedPages.getValue(first)
         Handlebars.SafeString(html)
     }
 }
@@ -95,6 +114,8 @@ internal fun Request.getMap(
     pageId: String = pageTitle.replace(" ", "_").toLowerCase()
 ): MutableMap<String, Any?> {
     try {
+        setLastUrl()
+
         val map = mutableMapOf<String, Any?>()
         map["title"] = pageTitle
         map["page"] = pageId

@@ -19,10 +19,13 @@ fun legislation() {
     path("/legislation") {
         get("/vote/:id") { request, response ->
             val user = request.getUser()
+            val voteFor = request.queryParams("username") ?: user?.username
+
             val legislation = database.getLegislation(request.params(":id"))
-            if (legislation == null || user == null || user.username !in legislation.committee.members
+            if (legislation == null || user == null || voteFor == null || voteFor !in legislation.committee.members
                     .map { it.username }
-            ) response.redirect("/legislation")
+                || (voteFor != user.username && !canEditLegislation(user, legislation.committee))
+            ) response.redirect("/legislation/view/${legislation?.id}")
             else {
                 val myVote = when (request.queryParams("vote")) {
                     "yes" -> VoteType.YES
@@ -33,7 +36,7 @@ fun legislation() {
                 val vote = legislation.currentStage.vote!!
                 vote.votes.add(
                     IndividualVote(
-                        user.username,
+                        voteFor,
                         legislation.id,
                         myVote,
                         legislation.currentStage.legislationStage
@@ -82,10 +85,12 @@ fun legislation() {
                     }
                 }
 
-                if (legislation.currentStage.legislationStage == LegislationStage.FIRST_READING || legislation.currentStage.legislationStage == LegislationStage.GRAMMARIAN) {
+                if (legislation.currentStage
+                        .legislationStage == LegislationStage.FIRST_READING || legislation.currentStage
+                        .legislationStage == LegislationStage.GRAMMARIAN
+                ) {
                     legislation.committeeId = "congress"
                 } else if (legislation.currentStage.legislationStage == LegislationStage.ENACTED) {
-                    legislation.legislationHistory.add(legislation.currentStage)
                     legislation.active = false
                 }
 
@@ -115,7 +120,9 @@ fun legislation() {
                             LegislationHistory(LegislationStage.COMMITTEE, "oversight", true, null, listOf())
                     }
                 } else {
-                   if (legislation.currentStage.legislationStage == LegislationStage.COMMITTEE) legislation.committeeId = legislation.originalCommittee
+                    if (legislation.currentStage
+                            .legislationStage == LegislationStage.COMMITTEE
+                    ) legislation.committeeId = legislation.originalCommittee
 
                     legislation.currentStage =
                         LegislationHistory(legislation.nextStage!!, legislation.committeeId, true, null, listOf())
@@ -157,6 +164,11 @@ fun legislation() {
                     legislation.currentStage =
                         LegislationHistory(LegislationStage.SPEAKER_VETO, legislation.committeeId, true, null, listOf())
                 } else if (legislation.currentStage.legislationStage == LegislationStage.GRAMMARIAN) {
+                    val message = request.queryParams("message")
+                    legislation.currentStage.data["message"] =
+                        message ?: "No specific message was given by the Grammarian."
+                    legislation.currentStage.committeeId = "steering"
+
                     legislation.currentStage =
                         LegislationHistory(LegislationStage.COMMITTEE, legislation.committeeId, true, null, listOf())
                 } else {
@@ -275,9 +287,15 @@ fun legislation() {
             else {
                 val isPrivileged =
                     user?.let { canEditLegislation(user, committee) || legislation.authorUsername == user.username }
-                val map = request.getMap("Bill \"${legislation.name}\"")
+                val map = request.getMap("Legislation | ${legislation.name}")
                 map["isPrivileged"] = isPrivileged
                 map["bill"] = legislation
+
+                map["at-grammarian"] = legislation.currentStage.legislationStage == LegislationStage.GRAMMARIAN
+                map["at-speaker"] = legislation.currentStage.legislationStage == LegislationStage.SPEAKER
+                map["at-president"] = legislation.currentStage.legislationStage == LegislationStage.PRESIDENT
+                map["needs-advanced-to-oversight"] = legislation.fundingBill && legislation.committeeId != "oversight"
+
                 if (legislation.currentStage.vote != null && user != null) {
                     map["hasVoted"] = legislation.currentStage.vote!!.votes.any { it.username == user.username }
                     map["myVote"] =
@@ -304,6 +322,7 @@ fun legislation() {
             val committee = request.queryParams("committee")?.nullifyEmpty()?.let { database.getCommittee(it) }
             val legislationId = request.queryParams("legislationId")?.nullifyEmpty()
             val fundingBill = request.queryParams("fundingBill") == "yes"
+            val bylawsBill = request.queryParams("bylawsBill") == "yes"
 
             if (description == null || name == null || billUrl == null || committee == null) response.redirect("/legislation/submit")
             else {
@@ -316,6 +335,7 @@ fun legislation() {
                     billUrl,
                     true,
                     fundingBill,
+                    bylawsBill,
                     mutableListOf(),
                     legislationHistory = mutableListOf()
                 )

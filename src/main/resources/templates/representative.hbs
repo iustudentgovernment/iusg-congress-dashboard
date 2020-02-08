@@ -23,6 +23,32 @@
             {{/with}}
         </div>
     </div>
+
+    <div class="row" style="margin-top: 30px; margin-bottom: 80px;">
+        <h2>Votes</h2>
+        {{#unless votes}}
+            <p>{{member.name}} hasn't participated in any votes for which we have online records.</p>
+        {{else}}
+            {{#each votes}}
+                <article class="profile" itemscope="itemscope"
+                         itemtype="http://schema.org/Person">
+                    <div class="content" style="margin-bottom: 20px;">
+                        <dl class="meta inline">
+                            <dt>Legislation:</dt>
+                            <dd>{{& first.legislation.asLink}}</dd>
+
+                            <dt>Legislation Stage:</dt>
+                            <dd>{{first.legislationStage.readable}}</dd>
+
+                            <dt>Vote:</dt>
+                            <dd>{{second}}</dd>
+                        </dl>
+                    </div>
+                </article>
+            {{/each}}
+        {{/unless}}
+
+    </div>
 </div>
 
 {{> partials/footer.hbs }}

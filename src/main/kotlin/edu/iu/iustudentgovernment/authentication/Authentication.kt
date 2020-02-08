@@ -47,3 +47,6 @@ data class Member(
 fun Request.getUser() = session().attribute<String?>("user")?.let { database.getMember(it) }
 
 fun List<Title>.hasTitlePermission(title: Title): Boolean = maxBy { it.rank }!!.rank >= title.rank
+
+fun List<String>.toMembersLink() = map { database.getMember(it)!! }.allAsLink()
+fun List<Member>.allAsLink() = joinToString(", ") { it.asLink }

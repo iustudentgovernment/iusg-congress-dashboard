@@ -63,10 +63,16 @@ val caches = ConcurrentHashMap(
     ).toMap().toMutableMap()
 )
 
-class Database {
+class Database(val cleanse: Boolean) {
 
     init {
         println("Starting db setup")
+
+        if (cleanse) {
+            if (r.dbList().run<List<String>>(connection).contains("iusg")) {
+                r.dbDrop("iusg").run<Any>(connection)
+            }
+        }
 
         println("Inserted db. Inserting tables")
         if (!r.dbList().run<List<String>>(connection).contains("iusg")) {
@@ -83,8 +89,6 @@ class Database {
     }
 
     fun insertInitial() {
-
-
         // add committees
         insertCommittee(
             Committee(
@@ -320,6 +324,7 @@ class Database {
                 "https://iu.box.com/s/6t72190q8c4uqvlvwkfw6ccd6zkman5s",
                 true,
                 fundingBill = true,
+                bylawsBill = false,
                 cosponsors = mutableListOf(),
                 legislationHistory = mutableListOf()
             )

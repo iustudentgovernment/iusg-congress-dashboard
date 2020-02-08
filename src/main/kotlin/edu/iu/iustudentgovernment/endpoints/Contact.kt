@@ -26,6 +26,12 @@ fun contact() {
                 requestUser != null && (requestUser.username == representative.username || requestUser.isAdministrator())
             map["editable"] = true
 
+            val votes = database.getVotesContainingMember(representative.username)
+                .sortedByDescending { it.start }
+                .map { vote -> vote to vote.votes.first { it.username == representative.username }.vote.readable }
+
+            map["votes"] = votes
+
             handlebars.render(map, "representative.hbs")
         }
     }

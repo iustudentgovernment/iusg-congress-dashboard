@@ -1,5 +1,6 @@
 package edu.iu.iustudentgovernment.models
 
+import edu.iu.iustudentgovernment.authentication.toMembersLink
 import edu.iu.iustudentgovernment.database
 
 data class Vote(
@@ -10,15 +11,28 @@ data class Vote(
     val quorum: Int,
     val requiredPercentToPass: Double,
     val votes: MutableList<IndividualVote>
-) :Idable{
+) : Idable {
     val valid get() = votes.size >= quorum && !votePercent.isNaN()
     val isValid get() = votes.size >= quorum && !votePercent.isNaN()
     val votePercent get() = if (votes.isEmpty()) Double.NaN else (votes.sumBy { it.vote.value }.toDouble() / votes.size)
     val passed get() = valid && votePercent >= requiredPercentToPass
     val numVotes get() = votes.size
 
-    val resultString get() = "${votes.count { it.vote == VoteType.YES }} members voting <u>Yes</u>, ${votes.count { it.vote == VoteType.NO }} members voting <u>No</u>, " +
-            "and ${votes.count { it.vote == VoteType.ABSTAIN }} members voting <u>Abstain</u>, with required quorum of $quorum members."
+    val votedYes get() = votes.filter { it.vote == VoteType.YES }.map { it.username }
+    val votedNo get() = votes.filter { it.vote == VoteType.NO }.map { it.username }
+    val votedAbstain get() = votes.filter { it.vote == VoteType.ABSTAIN }.map { it.username }
+
+    val legislation get() = database.getLegislation(legislationId)
+
+    private fun getWhoVotedString(type: VoteType) = votes.filter { it.vote == type }.map { it.username }.let { users ->
+        if (users.isEmpty()) "" else " (${users.toMembersLink()})"
+    }
+
+    val resultString
+        get() = "${votes.count { it.vote == VoteType.YES }} members voting <u>Yes</u>${getWhoVotedString(VoteType.YES)}, " +
+                "${votes.count { it.vote == VoteType.NO }} members voting <u>No</u>${getWhoVotedString(VoteType.NO)}, " +
+                "and ${votes.count { it.vote == VoteType.ABSTAIN }} members voting <u>Abstain</u>${getWhoVotedString(VoteType.ABSTAIN)}," +
+                " with required quorum of $quorum members"
 
     override fun getPermanentId() = voteId
 
@@ -36,7 +50,9 @@ enum class LegislationStage(val readable: String, val voteable: Boolean) {
     SECOND_READING("Second Reading", false), FLOOR("Floor Vote", true),
     SPEAKER("Speaker Signature", false), SPEAKER_VETO("Speaker Veto Override", true),
     PRESIDENT("President Signature", false), VETO("Veto Override Vote", true),
-    ENACTED("Enacted Legislation", false), FAILED("Failed Legislation", false)
+    ENACTED("Enacted Legislation", false), FAILED("Failed Legislation", false);
+
+    val grammarian get() = this == GRAMMARIAN
 }
 
 enum class VoteType(val readable: String, val value: Int) {
@@ -53,6 +69,7 @@ data class Legislation(
     val legislationBoxUrl: String,
     var active: Boolean,
     var fundingBill: Boolean,
+    var bylawsBill: Boolean,
     val cosponsors: MutableList<String>,
     var currentStage: LegislationHistory = LegislationHistory(
         LegislationStage.COMMITTEE,
@@ -64,7 +81,7 @@ data class Legislation(
 
     val legislationHistory: MutableList<LegislationHistory>,
     var originalCommittee: String = committeeId
-):Idable {
+) : Idable {
 
     override fun getPermanentId() = id
 
@@ -79,17 +96,20 @@ data class Legislation(
     val originatingCommittee get() = database.getCommittee(originalCommittee)!!
     val checkOriginatingCommittee get() = committeeId == originalCommittee
 
+    val asLink get() = "<a href='/legislation/view/$id'>$name</a>, introduced by ${author.asLink} (${committee.asLink})"
+
     val nextStage
-        get() = when (currentStage.legislationStage) {
-            LegislationStage.COMMITTEE -> LegislationStage.GRAMMARIAN
-            LegislationStage.GRAMMARIAN -> LegislationStage.FIRST_READING
-            LegislationStage.FIRST_READING -> LegislationStage.SECOND_READING
-            LegislationStage.SECOND_READING -> LegislationStage.FLOOR
-            LegislationStage.FLOOR -> LegislationStage.SPEAKER
-            LegislationStage.SPEAKER -> LegislationStage.PRESIDENT
-            LegislationStage.SPEAKER_VETO -> LegislationStage.PRESIDENT
-            LegislationStage.PRESIDENT -> LegislationStage.ENACTED
-            LegislationStage.VETO -> LegislationStage.ENACTED
+        get() = when  {
+            currentStage.legislationStage == LegislationStage.COMMITTEE -> LegislationStage.GRAMMARIAN
+            currentStage.legislationStage == LegislationStage.GRAMMARIAN && bylawsBill-> LegislationStage.FIRST_READING
+            currentStage.legislationStage == LegislationStage.GRAMMARIAN && !bylawsBill-> LegislationStage.FLOOR
+            currentStage.legislationStage == LegislationStage.FIRST_READING -> LegislationStage.SECOND_READING
+            currentStage.legislationStage == LegislationStage.SECOND_READING -> LegislationStage.FLOOR
+            currentStage.legislationStage == LegislationStage.FLOOR -> LegislationStage.SPEAKER
+            currentStage.legislationStage == LegislationStage.SPEAKER -> LegislationStage.PRESIDENT
+            currentStage.legislationStage == LegislationStage.SPEAKER_VETO -> LegislationStage.PRESIDENT
+            currentStage.legislationStage == LegislationStage.PRESIDENT -> LegislationStage.ENACTED
+            currentStage.legislationStage == LegislationStage.VETO -> LegislationStage.ENACTED
             else -> null
         }
 }
@@ -103,7 +123,8 @@ data class LegislationHistory(
     var committeeId: String?,
     var active: Boolean,
     var voteId: String?,
-    val notes: List<Note>
+    val notes: List<Note>,
+    val data: MutableMap<String, Any> = mutableMapOf()
 ) {
     var advancedByUsername: String? = null
 

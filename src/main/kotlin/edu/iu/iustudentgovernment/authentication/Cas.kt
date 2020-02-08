@@ -22,7 +22,7 @@ fun cas() {
                     if (user == null || !user.active) response.redirect("/")
                     else {
                         request.session().attribute("user", user.username)
-                        response.redirect("/")
+                        response.redirect((request.session().attribute("lastUrl") ?: "/") + "&login=true")
                     }
                 }
             } else response.redirect(casUrl)
