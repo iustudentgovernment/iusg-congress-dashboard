@@ -27,6 +27,7 @@ private val statementsTable = "statements"
 private val keysTable = "keys"
 private val messagesTable = "messages"
 private val whitcombTable = "whitcomb"
+private val complaintsTable = "complaints"
 
 private val tables = listOf(
     membersTable to "username",
@@ -42,7 +43,8 @@ private val tables = listOf(
     statementsTable to "id",
     keysTable to "id",
     messagesTable to "id",
-    whitcombTable to "week"
+    whitcombTable to "week",
+complaintsTable to "id"
 ).toMap()
 
 val caches = ConcurrentHashMap(
@@ -59,7 +61,8 @@ val caches = ConcurrentHashMap(
         votesTable to mutableListOf(),
         statementsTable to mutableListOf(),
         messagesTable to mutableListOf(),
-        whitcombTable to mutableListOf()
+        whitcombTable to mutableListOf(),
+    complaintsTable to mutableListOf()
     ).toMap().toMutableMap()
 )
 
@@ -108,6 +111,15 @@ class Database(val cleanse: Boolean) {
         )
         insertCommittee(
             Committee(
+                "Education",
+                "education",
+                "raranyi",
+                0
+            )
+        )
+
+        insertCommittee(
+            Committee(
                 "Oversight",
                 "oversight",
                 "arouleau",
@@ -152,6 +164,18 @@ class Database(val cleanse: Boolean) {
                 "Andrew Ireland is a third-year JD/MBA candidate at the Maurer School of Law. He recently returned from a year abroad studying for his MBA in Seoul, South Korea at Sungkyunkwan University’s Global School of Business. A former Cox Scholar, he graduated magna cum laude in 2017 from the O’Neill School of Public and Environmental Affairs and the Media School with dual degrees in Public Financial Management and Journalism. As Chairman of the IUSG Oversight and Reform Committee (“IORC”), he is especially interested in leveraging technology to increase the effectiveness and transparency of IUSG. In his free time, he enjoys walking his dog Peanut, IU Basketball and Dragon Express."
             )
         )
+
+        insertMember(
+            Member(
+                "raranyi",
+                "Off-Campus",
+                "Rachel Aranyi",
+                "raranyi@iu.edu",
+                "867-910-9630",
+                listOf(Title.COMMITTEE_CHAIR)
+            )
+        )
+
         insertMember(
             Member(
                 "aratzman",
@@ -234,6 +258,11 @@ class Database(val cleanse: Boolean) {
         insertCommitteeMembership(CommitteeMembership("arouleau", getUuid(), "steering", Role.PRIVILEGED_MEMBER))
         insertCommitteeMembership(CommitteeMembership("arouleau", getUuid(), "oversight", Role.COMMITTEE_CHAIR))
         updateCommitteeMembership(getCommitteeMembershipsForMember("arouleau").first { it.committeeId == "congress" }
+            .copy(role = Role.PRIVILEGED_MEMBER))
+
+        insertCommitteeMembership(CommitteeMembership("raranyi", getUuid(), "steering", Role.PRIVILEGED_MEMBER))
+        insertCommitteeMembership(CommitteeMembership("raranyi", getUuid(), "education", Role.COMMITTEE_CHAIR))
+        updateCommitteeMembership(getCommitteeMembershipsForMember("raranyi").first { it.committeeId == "congress" }
             .copy(role = Role.PRIVILEGED_MEMBER))
 
         insertMessage(
@@ -568,6 +597,11 @@ class Database(val cleanse: Boolean) {
     fun getAllWhitcombAwardees() = getAll<Whitcomb>(whitcombTable)
     fun getWhitcombAwardsForMember(username: String) = getAllWhitcombAwardees().filter { it.username == username }
     fun insertWhitcombAward(award: Whitcomb) = insert(whitcombTable, award)
+
+    // complaints
+    fun getComplaints() = getAll<Complaint>(complaintsTable)
+    fun insertComplaint(complaint: Complaint) = insert(complaintsTable, complaint)
+    fun deleteComplaint(complaintId: String) = delete(complaintsTable, complaintId)
 
     // utils
 

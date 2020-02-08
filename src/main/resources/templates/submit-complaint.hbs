@@ -1,0 +1,26 @@
+{{> partials/header.hbs }}
+
+<div id="main-content">
+    <div class="row" style="margin-top: 30px;">
+        <h2>Submit a Complaint or Comment about IU</h2>
+    </div>
+
+    <div class="collapsed bg-none">
+        <div class="row">
+            <article class="profile feed-item" itemscope="itemscope" itemtype="http://schema.org/Person">
+                <form action="/create-new-complaint" method="get">
+                    <div class="content">
+                        Your Name: <input id="name" name="name" style="width: 50%" type="text" placeholder="Your full name..">
+                        Your Email: <input id="email" name="email" style="width: 50%" type="email" placeholder="Your IU email..">
+
+                        Complaint/Comment: <textarea id="complaint" name="complaint" rows="15" style="width: 65%" placeholder="At least 50 characters required."></textarea>
+                    </div>
+
+                    <input type="submit" class="button" value="Submit"/>
+                </form>
+            </article>
+        </div>
+    </div>
+</div>
+
+{{> partials/footer.hbs }}
