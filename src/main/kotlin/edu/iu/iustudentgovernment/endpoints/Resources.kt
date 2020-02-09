@@ -8,7 +8,7 @@ import spark.Spark.path
 
 fun resources() {
     path("/resources") {
-        get("/drive") { _, response -> response.redirect("https://drive.google.com/drive/u/2/folders/1e98YxBybghre4gsuUlpM8pPv22DtWvKL")}
+        get("/drive") { _, response -> response.redirect("https://drive.google.com/drive/folders/1e98YxBybghre4gsuUlpM8pPv22DtWvKL?usp=sharing")}
         get("") { request, _ ->
             val map = request.getMap("Resources")
 
