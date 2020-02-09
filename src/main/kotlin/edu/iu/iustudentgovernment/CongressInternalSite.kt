@@ -77,6 +77,7 @@ fun main(args: Array<String>) {
     awards()
     initiatives()
     submissions()
+    resources()
 
     println("Endpoints registered")
 }
