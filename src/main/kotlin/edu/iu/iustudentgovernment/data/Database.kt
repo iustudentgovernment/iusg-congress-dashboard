@@ -1,16 +1,36 @@
-package edu.iu.iustudentgovernment.database
+package edu.iu.iustudentgovernment.data
 
 import com.rethinkdb.RethinkDB.r
-import edu.iu.iustudentgovernment.*
 import edu.iu.iustudentgovernment.authentication.Member
 import edu.iu.iustudentgovernment.authentication.Role
 import edu.iu.iustudentgovernment.authentication.Title
-import edu.iu.iustudentgovernment.models.*
+import edu.iu.iustudentgovernment.connection
+import edu.iu.iustudentgovernment.fromEmail
+import edu.iu.iustudentgovernment.gson
+import edu.iu.iustudentgovernment.http.HandlebarsContent
+import edu.iu.iustudentgovernment.http.renderHbs
+import edu.iu.iustudentgovernment.models.AttendanceTaken
+import edu.iu.iustudentgovernment.models.Committee
+import edu.iu.iustudentgovernment.models.CommitteeFile
+import edu.iu.iustudentgovernment.models.CommitteeMembership
+import edu.iu.iustudentgovernment.models.Complaint
+import edu.iu.iustudentgovernment.models.Idable
+import edu.iu.iustudentgovernment.models.IndividualVote
+import edu.iu.iustudentgovernment.models.Legislation
+import edu.iu.iustudentgovernment.models.Meeting
+import edu.iu.iustudentgovernment.models.MeetingFile
+import edu.iu.iustudentgovernment.models.MeetingMinutes
+import edu.iu.iustudentgovernment.models.Message
+import edu.iu.iustudentgovernment.models.Note
+import edu.iu.iustudentgovernment.models.Paragraph
+import edu.iu.iustudentgovernment.models.Statement
+import edu.iu.iustudentgovernment.models.Vote
+import edu.iu.iustudentgovernment.models.Whitcomb
+import edu.iu.iustudentgovernment.urlBase
 import edu.iu.iustudentgovernment.utils.asPojo
 import edu.iu.iustudentgovernment.utils.createEmail
 import edu.iu.iustudentgovernment.utils.queryAsArrayList
 import edu.iu.iustudentgovernment.utils.sendMessage
-import spark.ModelAndView
 import java.util.concurrent.ConcurrentHashMap
 
 private val membersTable = "users"
@@ -44,7 +64,7 @@ private val tables = listOf(
     keysTable to "id",
     messagesTable to "id",
     whitcombTable to "week",
-complaintsTable to "id"
+    complaintsTable to "id"
 ).toMap()
 
 val caches = ConcurrentHashMap(
@@ -62,7 +82,7 @@ val caches = ConcurrentHashMap(
         statementsTable to mutableListOf(),
         messagesTable to mutableListOf(),
         whitcombTable to mutableListOf(),
-    complaintsTable to mutableListOf()
+        complaintsTable to mutableListOf()
     ).toMap().toMutableMap()
 )
 
@@ -75,6 +95,7 @@ class Database(val cleanse: Boolean) {
             if (r.dbList().run<List<String>>(connection).contains("iusg")) {
                 r.dbDrop("iusg").run<Any>(connection)
             }
+            println("Dropped db")
         }
 
         println("Inserted db. Inserting tables")
@@ -92,6 +113,8 @@ class Database(val cleanse: Boolean) {
     }
 
     fun insertInitial() {
+        println("inserting")
+
         // add committees
         insertCommittee(
             Committee(
@@ -143,8 +166,8 @@ class Database(val cleanse: Boolean) {
             )
         )
 
-        database.getCommittees().forEach { committee ->
-            database.insertMessage(
+        getCommittees().forEach { committee ->
+            insertMessage(
                 Message(
                     committee.descriptionId,
                     "Lorem ipsum dolor sit amet, nisl causae ei vim, an augue persius mel, nam dicit epicurei lucilius in. Ex per solet percipitur, soleat interpretaris ius ei."
@@ -236,8 +259,10 @@ class Database(val cleanse: Boolean) {
 
         // add steering members' committee memberships
         insertCommitteeMembership(CommitteeMembership("ajirelan", getUuid(), "steering", Role.COMMITTEE_CHAIR))
+
         updateCommitteeMembership(getCommitteeMembershipsForMember("ajirelan").first { it.committeeId == "congress" }
             .copy(role = Role.COMMITTEE_CHAIR))
+
         insertCommitteeMembership(CommitteeMembership("ajirelan", getUuid(), "environment", Role.COMMITTEE_CHAIR))
         insertCommitteeMembership(CommitteeMembership("ajirelan", getUuid(), "student", Role.COMMITTEE_CHAIR))
 
@@ -347,7 +372,7 @@ class Database(val cleanse: Boolean) {
             Legislation(
                 "Late-Night Transportation",
                 "To provide safe, affordable, and accessible late-night transportation options for IU students in the vicinity of the Indiana University Bloomington campus",
-                database.getUuid(),
+                getUuid(),
                 "aratzman",
                 "student",
                 "https://iu.box.com/s/6t72190q8c4uqvlvwkfw6ccd6zkman5s",
@@ -432,15 +457,16 @@ class Database(val cleanse: Boolean) {
 
         if (meeting.time >= System.currentTimeMillis()) {
             val committee = meeting.committee!!
-            val email = handlebars.render(
-                ModelAndView(
+            val email = renderHbs(
+                HandlebarsContent(
+                    "emails/new-meeting.hbs",
                     mapOf(
                         "committee" to committee,
                         "date" to meeting.date,
                         "location" to meeting.location,
                         "url" to "$urlBase/meetings/${meeting.meetingId}",
                         "urlBase" to urlBase
-                    ), "emails/new-meeting.hbs"
+                    )
                 )
             )
 
@@ -493,13 +519,14 @@ class Database(val cleanse: Boolean) {
 
         val members = legislation.committee.members.map { it.email }
 
-        val email = handlebars.render(
-            ModelAndView(
+        val email = renderHbs(
+            HandlebarsContent(
+                "emails/legislation-new.hbs",
                 mapOf(
                     "legislation" to legislation,
                     "url" to "$urlBase/legislation/view/${legislation.id}",
                     "urlBase" to urlBase
-                ), "emails/legislation-new.hbs"
+                )
             )
         )
 
@@ -522,13 +549,14 @@ class Database(val cleanse: Boolean) {
         if (legislation.enacted) {
             val members = legislation.committee.members.map { it.email }
 
-            val email = handlebars.render(
-                ModelAndView(
+            val email = renderHbs(
+                HandlebarsContent(
+                    "emails/legislation-enacted.hbs",
                     mapOf(
                         "legislation" to legislation,
                         "url" to "$urlBase/legislation/view/${legislation.id}",
                         "urlBase" to urlBase
-                    ), "emails/legislation-enacted.hbs"
+                    )
                 )
             )
 

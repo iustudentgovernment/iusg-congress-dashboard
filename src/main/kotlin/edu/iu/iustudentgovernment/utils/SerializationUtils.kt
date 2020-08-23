@@ -24,7 +24,11 @@ fun <T> Any.queryAsArrayList(gson: Gson, t: Class<T>): MutableList<T?> {
 }
 
 fun <T> T.insert(table: String) = r.table(table).insert(r.json(gson.toJson(this))).run<Any>(connection)
-fun <T> T.update(table: String, id: String) = r.table(table).get(id).update(r.json(gson.toJson(this))).run<Any>(connection)
+fun <T> T.update(table: String, id: String) =
+    r.table(table).get(id).update(r.json(gson.toJson(this))).run<Any>(connection)
+
 fun delete(table: String, id: String) = r.table(table).get(id).delete().run<Any>(connection)
-inline fun <reified T> getObject(table: String, id: String) = asPojo(gson, r.table(table).get(id).run(connection), T::class.java)
+inline fun <reified T> getObject(table: String, id: String) =
+    asPojo(gson, r.table(table).get(id).run(connection), T::class.java)
+
 inline fun <reified T> getAll(table: String) = r.table(table).run<Any>(connection).queryAsArrayList(gson, T::class.java)

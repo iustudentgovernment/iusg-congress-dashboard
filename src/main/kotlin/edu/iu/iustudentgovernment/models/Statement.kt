@@ -14,7 +14,7 @@ data class Statement(
     val lastEditedByUsername: String?,
     val title: String,
     val paragraphs: List<Paragraph>
-):Idable {
+) : Idable {
     val author get() = database.getMember(createdByUsername)!!
     val date get() = createdAt.getAsDate()
 

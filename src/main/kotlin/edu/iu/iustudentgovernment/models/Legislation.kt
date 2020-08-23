@@ -31,7 +31,11 @@ data class Vote(
     val resultString
         get() = "${votes.count { it.vote == VoteType.YES }} members voting <u>Yes</u>${getWhoVotedString(VoteType.YES)}, " +
                 "${votes.count { it.vote == VoteType.NO }} members voting <u>No</u>${getWhoVotedString(VoteType.NO)}, " +
-                "and ${votes.count { it.vote == VoteType.ABSTAIN }} members voting <u>Abstain</u>${getWhoVotedString(VoteType.ABSTAIN)}," +
+                "and ${votes.count { it.vote == VoteType.ABSTAIN }} members voting <u>Abstain</u>${
+                    getWhoVotedString(
+                        VoteType.ABSTAIN
+                    )
+                }," +
                 " with required quorum of $quorum members"
 
     override fun getPermanentId() = voteId
@@ -99,10 +103,10 @@ data class Legislation(
     val asLink get() = "<a href='/legislation/view/$id'>$name</a>, introduced by ${author.asLink} (${committee.asLink})"
 
     val nextStage
-        get() = when  {
+        get() = when {
             currentStage.legislationStage == LegislationStage.COMMITTEE -> LegislationStage.GRAMMARIAN
-            currentStage.legislationStage == LegislationStage.GRAMMARIAN && bylawsBill-> LegislationStage.FIRST_READING
-            currentStage.legislationStage == LegislationStage.GRAMMARIAN && !bylawsBill-> LegislationStage.FLOOR
+            currentStage.legislationStage == LegislationStage.GRAMMARIAN && bylawsBill -> LegislationStage.FIRST_READING
+            currentStage.legislationStage == LegislationStage.GRAMMARIAN && !bylawsBill -> LegislationStage.FLOOR
             currentStage.legislationStage == LegislationStage.FIRST_READING -> LegislationStage.SECOND_READING
             currentStage.legislationStage == LegislationStage.SECOND_READING -> LegislationStage.FLOOR
             currentStage.legislationStage == LegislationStage.FLOOR -> LegislationStage.SPEAKER

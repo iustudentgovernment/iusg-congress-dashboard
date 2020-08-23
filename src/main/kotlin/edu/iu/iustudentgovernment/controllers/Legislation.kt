@@ -1,33 +1,42 @@
-package edu.iu.iustudentgovernment.endpoints
+package edu.iu.iustudentgovernment.controllers
 
 import edu.iu.iustudentgovernment.authentication.Member
 import edu.iu.iustudentgovernment.authentication.getUser
+import edu.iu.iustudentgovernment.data.getMap
 import edu.iu.iustudentgovernment.database
-import edu.iu.iustudentgovernment.getMap
-import edu.iu.iustudentgovernment.handlebars
-import edu.iu.iustudentgovernment.models.*
+import edu.iu.iustudentgovernment.http.HandlebarsContent
+import edu.iu.iustudentgovernment.http.respondHbs
+import edu.iu.iustudentgovernment.models.Committee
+import edu.iu.iustudentgovernment.models.IndividualVote
+import edu.iu.iustudentgovernment.models.Legislation
+import edu.iu.iustudentgovernment.models.LegislationHistory
+import edu.iu.iustudentgovernment.models.LegislationStage
+import edu.iu.iustudentgovernment.models.Vote
+import edu.iu.iustudentgovernment.models.VoteType
 import edu.iu.iustudentgovernment.utils.nullifyEmpty
-import edu.iu.iustudentgovernment.utils.render
-import spark.Spark.get
-import spark.Spark.path
+import io.ktor.application.call
+import io.ktor.response.respondRedirect
+import io.ktor.routing.Route
+import io.ktor.routing.get
+import io.ktor.routing.route
 import kotlin.math.roundToInt
 
 private fun canEditLegislation(member: Member, committee: Committee) =
     member.isAdministrator() || committee.isPrivileged(member) || member.title.map { it.rank }.max()!! >= 2
 
-fun legislation() {
-    path("/legislation") {
-        get("/vote/:id") { request, response ->
-            val user = request.getUser()
-            val voteFor = request.queryParams("username") ?: user?.username
+fun Route.legislationRoutes() {
+    route("/legislation") {
+        get("/vote/{id}") {
+            val user = call.getUser()
+            val voteFor = call.request.queryParameters["username"] ?: user?.username
 
-            val legislation = database.getLegislation(request.params(":id"))
+            val legislation = database.getLegislation(call.parameters["id"]!!)
             if (legislation == null || user == null || voteFor == null || voteFor !in legislation.committee.members
                     .map { it.username }
                 || (voteFor != user.username && !canEditLegislation(user, legislation.committee))
-            ) response.redirect("/legislation/view/${legislation?.id}")
+            ) call.respondRedirect("/legislation/view/${legislation?.id}")
             else {
-                val myVote = when (request.queryParams("vote")) {
+                val myVote = when (call.request.queryParameters["vote"]) {
                     "yes" -> VoteType.YES
                     "no" -> VoteType.NO
                     else -> VoteType.ABSTAIN
@@ -45,16 +54,16 @@ fun legislation() {
 
                 database.updateVote(vote)
 
-                response.redirect("/legislation/view/${legislation.id}")
+                call.respondRedirect("/legislation/view/${legislation.id}")
             }
         }
 
-        get("/vote/end/:id") { request, response ->
-            val user = request.getUser()
-            val legislation = database.getLegislation(request.params(":id"))
+        get("/vote/end/{id}") {
+            val user = call.getUser()
+            val legislation = database.getLegislation(call.parameters["id"]!!)
             if (legislation == null || user == null || (!legislation.committee
                     .let { !canEditLegislation(user, it) } && !user.isAdministrator())
-            ) response.redirect("/legislation")
+            ) call.respondRedirect("/legislation")
             else {
                 val vote = legislation.currentStage.vote!!
                 val oldStage = legislation.currentStage
@@ -96,16 +105,16 @@ fun legislation() {
 
                 database.updateLegislation(legislation)
 
-                response.redirect("/legislation/view/${legislation.id}")
+                call.respondRedirect("/legislation/view/${legislation.id}")
             }
         }
 
-        get("/advance/:id") { request, response ->
-            val user = request.getUser()
-            val legislation = database.getLegislation(request.params(":id"))
+        get("/advance/{id}") {
+            val user = call.getUser()
+            val legislation = database.getLegislation(call.parameters["id"]!!)
             if (legislation == null || user == null || (!legislation.committee
                     .let { !canEditLegislation(user, it) } && !user.isAdministrator())
-            ) response.redirect("/legislation")
+            ) call.respondRedirect("/legislation")
             else {
                 legislation.currentStage.voteId = null
                 legislation.currentStage.advancedByUsername = user.username
@@ -143,16 +152,16 @@ fun legislation() {
 
                 database.updateLegislation(legislation)
 
-                response.redirect("/legislation/view/${legislation.id}")
+                call.respondRedirect("/legislation/view/${legislation.id}")
             }
         }
 
-        get("/fail/:id") { request, response ->
-            val user = request.getUser()
-            val legislation = database.getLegislation(request.params(":id"))
+        get("/fail/{id}") {
+            val user = call.getUser()
+            val legislation = database.getLegislation(call.parameters["id"]!!)
             if (legislation == null || user == null || (!legislation.committee
                     .let { !canEditLegislation(user, it) } && !user.isAdministrator())
-            ) response.redirect("/legislation")
+            ) call.respondRedirect("/legislation")
             else {
                 legislation.currentStage.advancedByUsername = user.username
 
@@ -164,7 +173,7 @@ fun legislation() {
                     legislation.currentStage =
                         LegislationHistory(LegislationStage.SPEAKER_VETO, legislation.committeeId, true, null, listOf())
                 } else if (legislation.currentStage.legislationStage == LegislationStage.GRAMMARIAN) {
-                    val message = request.queryParams("message")
+                    val message = call.request.queryParameters["message"]
                     legislation.currentStage.data["message"] =
                         message ?: "No specific message was given by the Grammarian."
                     legislation.currentStage.committeeId = "steering"
@@ -181,17 +190,17 @@ fun legislation() {
 
                 database.updateLegislation(legislation)
 
-                response.redirect("/legislation/view/${legislation.id}")
+                call.respondRedirect("/legislation/view/${legislation.id}")
             }
         }
 
 
-        get("/vote/start/:id") { request, response ->
-            val user = request.getUser()
-            val legislation = database.getLegislation(request.params(":id"))
+        get("/vote/start/{id}") {
+            val user = call.getUser()
+            val legislation = database.getLegislation(call.parameters["id"]!!)
             if (legislation == null || user == null || (!legislation.committee
                     .let { !canEditLegislation(user, it) } && !user.isAdministrator())
-            ) response.redirect("/legislation")
+            ) call.respondRedirect("/legislation")
             else {
                 val vote = Vote(
                     database.getUuid(),
@@ -207,87 +216,87 @@ fun legislation() {
                 legislation.currentStage.voteId = vote.voteId
                 database.updateLegislation(legislation)
 
-                response.redirect("/legislation/view/${legislation.id}")
+                call.respondRedirect("/legislation/view/${legislation.id}")
             }
         }
 
-        get("/withdraw/:id") { request, response ->
-            val user = request.getUser()
-            val legislation = database.getLegislation(request.params(":id"))
+        get("/withdraw/{id}") {
+            val user = call.getUser()
+            val legislation = database.getLegislation(call.parameters["id"]!!)
             if (legislation == null || user == null || (!legislation.committee
                     .let { !canEditLegislation(user, it) } && !user.isAdministrator())
-            ) response.redirect("/legislation")
+            ) call.respondRedirect("/legislation")
             else {
                 database.deleteLegislation(legislation.id)
 
-                response.redirect("/committees/${legislation.committeeId}")
+                call.respondRedirect("/committees/${legislation.committeeId}")
             }
         }
 
-        get("/edit/:id") { request, response ->
-            val user = request.getUser()
-            val legislation = database.getLegislation(request.params(":id"))
+        get("/edit/{id}") {
+            val user = call.getUser()
+            val legislation = database.getLegislation(call.parameters["id"]!!)
             if (legislation == null || user == null || (!legislation.committee
                     .let { !canEditLegislation(user, it) } && !user.isAdministrator())
-            ) response.redirect("/legislation")
+            ) call.respondRedirect("/legislation")
             else {
-                val map = request.getMap("Edit Legislation")
+                val map = getMap(call, "Edit Legislation")
                 map["bill"] = legislation
                 map["inCommittees"] = user.committeeMemberships.map { it.committee }.filter { it.id != "congress" }
 
-                handlebars.render(map, "legislation-edit.hbs")
+                call.respondHbs(HandlebarsContent("legislation-edit.hbs", map))
             }
         }
 
-        get("/cosponsor/:id") { request, response ->
-            val user = request.getUser()
-            val legislation = database.getLegislation(request.params(":id"))
-            if (legislation == null || user == null || user.username in legislation.cosponsors) response.redirect("/legislation")
+        get("/cosponsor/{id}") {
+            val user = call.getUser()
+            val legislation = database.getLegislation(call.parameters["id"]!!)
+            if (legislation == null || user == null || user.username in legislation.cosponsors) call.respondRedirect("/legislation")
             else {
                 legislation.cosponsors.add(user.username)
                 database.updateLegislation(legislation)
 
-                response.redirect("/legislation/view/${legislation.id}")
+                call.respondRedirect("/legislation/view/${legislation.id}")
             }
         }
 
 
-        get("/failed") { request, _ ->
-            val map = request.getMap("Legislation")
+        get("/failed") {
+            val map = getMap(call, "Legislation")
             map["failedLegislation"] = database.getFailedLegislation()
 
-            handlebars.render(map, "legislation-failed.hbs")
+            call.respondHbs(HandlebarsContent("legislation-failed.hbs", map))
         }
 
-        get("") { request, _ ->
-            val map = request.getMap("Legislation")
+        get("") {
+            val map = getMap(call, "Legislation")
             map["activeLegislation"] = database.getActiveLegislation()
             map["enactedLegislation"] = database.getEnactedLegislation()
 
-            handlebars.render(map, "legislation-homepage.hbs")
+            call.respondHbs(HandlebarsContent("legislation-homepage.hbs", map))
         }
 
-        get("/submit") { request, response ->
-            val user = request.getUser()
-            if (user == null) response.redirect("/login")
+        get("/submit") {
+            val user = call.getUser()
+            if (user == null) call.respondRedirect("/login")
             else {
-                val map = request.getMap("Submit Legislation")
+                val map = getMap(call, "Submit Legislation")
                 map["inCommittees"] = user.committeeMemberships.map { it.committee }.filter { it.id != "congress" }
 
-                handlebars.render(map, "new-legislation.hbs")
+                call.respondHbs(HandlebarsContent("new-legislation.hbs", map))
             }
         }
 
-        get("/view/:id") { request, response ->
-            val user = request.getUser()
-            val legislation = request.params(":id").let { database.getLegislation(it) }
+        get("/view/{id}") {
+            val user = call.getUser()
+            val legislation = call.parameters["id"]!!.let { database.getLegislation(it) }
             val committee = legislation?.committee
 
-            if (committee == null) response.redirect("/legislation")
+            if (committee == null) call.respondRedirect("/legislation")
             else {
                 val isPrivileged =
                     user?.let { canEditLegislation(user, committee) || legislation.authorUsername == user.username }
-                val map = request.getMap("Legislation | ${legislation.name}")
+                val map = getMap(call, "Legislation | ${legislation.name}")
                 map["isPrivileged"] = isPrivileged
                 map["bill"] = legislation
 
@@ -307,24 +316,25 @@ fun legislation() {
                     map["isCosponsor"] = user.username in legislation.cosponsors
                     map["isAuthor"] = user.username == legislation.authorUsername
                 }
-                handlebars.render(map, "legislation-single.hbs")
+
+                call.respondHbs(HandlebarsContent("legislation-single.hbs", map))
             }
         }
     }
 
-    get("/create-new-legislation") { request, response ->
-        val user = request.getUser()
-        if (user == null) response.redirect("/login")
+    get("/create-new-legislation") {
+        val user = call.getUser()
+        if (user == null) call.respondRedirect("/login")
         else {
-            val name = request.queryParams("name")?.nullifyEmpty()
-            val description = request.queryParams("description")?.nullifyEmpty()
-            val billUrl = request.queryParams("billUrl")?.nullifyEmpty()
-            val committee = request.queryParams("committee")?.nullifyEmpty()?.let { database.getCommittee(it) }
-            val legislationId = request.queryParams("legislationId")?.nullifyEmpty()
-            val fundingBill = request.queryParams("fundingBill") == "yes"
-            val bylawsBill = request.queryParams("bylawsBill") == "yes"
+            val name = call.request.queryParameters["name"]?.nullifyEmpty()
+            val description = call.request.queryParameters["description"]?.nullifyEmpty()
+            val billUrl = call.request.queryParameters["billUrl"]?.nullifyEmpty()
+            val committee = call.request.queryParameters["committee"]?.nullifyEmpty()?.let { database.getCommittee(it) }
+            val legislationId = call.request.queryParameters["legislationId"]?.nullifyEmpty()
+            val fundingBill = call.request.queryParameters["fundingBill"] == "yes"
+            val bylawsBill = call.request.queryParameters["bylawsBill"] == "yes"
 
-            if (description == null || name == null || billUrl == null || committee == null) response.redirect("/legislation/submit")
+            if (description == null || name == null || billUrl == null || committee == null) call.respondRedirect("/legislation/submit")
             else {
                 val legislation = Legislation(
                     name,
@@ -343,7 +353,7 @@ fun legislation() {
                 if (legislationId == null) database.insertLegislation(legislation)
                 else database.updateLegislation(legislation)
 
-                response.redirect("/legislation/view/${legislation.id}")
+                call.respondRedirect("/legislation/view/${legislation.id}")
             }
         }
     }

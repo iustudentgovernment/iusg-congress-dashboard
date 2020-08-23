@@ -3,39 +3,45 @@ package edu.iu.iustudentgovernment.authentication
 import edu.iu.iustudentgovernment.callbackUrl
 import edu.iu.iustudentgovernment.casUrl
 import edu.iu.iustudentgovernment.database
+import io.ktor.application.call
+import io.ktor.response.respondRedirect
+import io.ktor.routing.Route
+import io.ktor.routing.get
+import io.ktor.routing.route
+import io.ktor.sessions.clear
+import io.ktor.sessions.sessions
+import io.ktor.sessions.set
 import org.jsoup.Jsoup
-import spark.Spark
-import spark.Spark.get
-import spark.Spark.path
 
-fun cas() {
-    path("/cas") {
-        get("/callback") { request, response ->
-            val casTicket = request.queryParams("casticket")
+fun Route.casRoutes() {
+    route("/cas") {
+        get("/callback") {
+            val casTicket = call.request.queryParameters["casticket"]
             if (casTicket != null) {
                 val text =
                     Jsoup.connect("https://cas.iu.edu/cas/validate?cassvc=IU&casticket=$casTicket&casurl=$callbackUrl")
                         .get().body().text()
-                if (text == "no") response.redirect("/callback")
+
+                if (text == "no") call.respondRedirect("/callback")
                 else {
                     val user = database.getMember(text.split(" ")[1])
-                    if (user == null || !user.active) response.redirect("/")
+                    if (user == null || !user.active) call.respondRedirect("/")
                     else {
-                        request.session().attribute("user", user.username)
-                        response.redirect((request.session().attribute("lastUrl") ?: "/") + "&login=true")
+                        call.sessions.set(User(user.username))
+                        call.respondRedirect("/?login=true")
                     }
                 }
-            } else response.redirect(casUrl)
+            } else call.respondRedirect(casUrl)
         }
     }
 
-    get("/login") { _, response ->
-        response.redirect(casUrl)
+    get("/login") {
+        call.respondRedirect(casUrl)
     }
 
-    get("/logout") { request, response ->
-        request.session().invalidate()
-        response.redirect("https://cas.iu.edu/cas/logout")
+    get("/logout") {
+        call.sessions.clear<User>()
+        call.respondRedirect("https://cas.iu.edu/cas/logout")
     }
 
 }

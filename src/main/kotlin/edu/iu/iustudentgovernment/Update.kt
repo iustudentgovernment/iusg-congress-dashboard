@@ -1,2 +1,0 @@
-package edu.iu.iustudentgovernment
-

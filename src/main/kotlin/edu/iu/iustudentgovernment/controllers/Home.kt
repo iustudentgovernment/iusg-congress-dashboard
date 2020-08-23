@@ -1,14 +1,16 @@
-package edu.iu.iustudentgovernment.endpoints
+package edu.iu.iustudentgovernment.controllers
 
+import edu.iu.iustudentgovernment.data.getMap
 import edu.iu.iustudentgovernment.database
-import edu.iu.iustudentgovernment.getMap
-import edu.iu.iustudentgovernment.handlebars
-import edu.iu.iustudentgovernment.utils.render
-import spark.Spark.get
+import edu.iu.iustudentgovernment.http.HandlebarsContent
+import edu.iu.iustudentgovernment.http.respondHbs
+import io.ktor.application.call
+import io.ktor.routing.Route
+import io.ktor.routing.get
 
-fun home() {
-    get("/") { request, response ->
-        val map = request.getMap("Home")
+fun Route.homeRoutes() {
+    get("/") {
+        val map = getMap(call, "Home")
 
         val upcomingCongressMeeting = database.getCommittee("congress")!!.upcomingMeetings.firstOrNull()
         if (upcomingCongressMeeting == null) map["upcoming-meeting"] = "TBA"
@@ -19,6 +21,6 @@ fun home() {
 
         map["speaker-message"] = database.getSpeakerMessage()
 
-        handlebars.render(map, "index.hbs")
+        call.respondHbs(HandlebarsContent("index.hbs", map))
     }
 }

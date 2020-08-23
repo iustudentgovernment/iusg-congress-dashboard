@@ -1,4 +1,20 @@
-# IUSG Congress Site
+# IUSG Congress Bill Dashboarding Site
+
+## How to check out and run
+1. Make sure IntelliJ IDEA, Git, and Oracle JDK 8/OpenJDK 8 are installed
+2. Make sure Docker for Windows/Docker for Mac (or Linux) is installed. If you do not have Windows 10 Pro,
+you need to use IUWare to get a Windows EDU activation key and use it in your activation settings.
+3. Make sure Linux containers are being used.
+4. Run the following command to bring up a local database:
+`docker run -d --name iusg-db -p 8080:8080 -p 8081:8081 -p 28015:28015 -p 29015:29015 rethinkdb`
+5. Set environment variables
+    - Click the green run button on the main method, click on "CongressDashboardKt" configuration.
+    - `database_hostname` - localhost if running locally
+    - `url_base` - localhost if running locally
+    - `cleanse` - whether to remove all data first
+    - `dbpassword` - rethinkdb password if running in prod or staging
+
+
 
 
 ### Messages:
